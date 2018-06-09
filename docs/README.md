@@ -2,6 +2,8 @@
 
 Toy Ray Tracer
 
+[![Build Status](https://travis-ci.org/afnanenayet/basic-ray-tracer.svg?branch=master)](https://travis-ci.org/afnanenayet/basic-ray-tracer)
+
 ## Synopsis
 
 This is a toy ray tracer written in Rust.
