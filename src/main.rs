@@ -24,7 +24,11 @@ fn hit_sphere(center: &Point3f, radius: f32, r: &Ray3f) -> bool {
 
 /// Calculate the background color that corresponds to an outgoing camera ray. Creates a blend of
 /// blue and white.
-fn bg_color(r: &Ray3f) -> Color3f {
+fn color(r: &Ray3f) -> Color3f {
+    if hit_sphere(&Vector3::new(0.0, 0.0, -1.0), 0.5, r) {
+        return Vector3::new(1.0, 0.0, 0.0);
+    }
+
     let unit_dir = r.direction.normalize();
     let t = 0.5 * (unit_dir.y + 1.0);
 
@@ -33,8 +37,8 @@ fn bg_color(r: &Ray3f) -> Color3f {
 }
 
 fn main() -> std::io::Result<()> {
-    let nx = 200;
-    let ny = 100;
+    let nx = 1920;
+    let ny = 1080;
 
     // open file and write P3 file header
     let mut file = File::create("pic.P3")?;
@@ -57,7 +61,7 @@ fn main() -> std::io::Result<()> {
 
             let dir: Vector3f = lower_left + (u * horizontal) + (v * vertical);
             let r = Ray3f::new(&origin, &dir);
-            let color: Color3f = bg_color(&r);
+            let color: Color3f = color(&r);
             let ir = (color.x * 255.99) as u32;
             let ig = (color.y * 255.99) as u32;
             let ib = (color.z * 255.99) as u32;
