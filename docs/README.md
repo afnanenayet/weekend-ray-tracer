@@ -20,3 +20,5 @@ make sure I was using proper Rust conventions when writing this.
 For the rendering side, I referenced the classic [pbrt](http://pbrt.org) book,
 as well as information from Dartmouth's CS87 rendering course, taught
 by [Wojciech Jarosz](https://cs.dartmouth.edu/~wjarosz/).
+
+I'm also using [nalgebra](http://nalgebra.org) as my linear algebra library.
