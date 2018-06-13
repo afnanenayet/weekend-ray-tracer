@@ -1,8 +1,5 @@
 /// The ray class contains an origin and a direction. Both of these are 3D vectors.
 use na::{Real, Scalar, Vector3};
-use std::cmp::PartialEq;
-use std::fmt::Debug;
-use std::marker::Copy;
 
 #[derive(Clone, Debug, PartialEq, Copy)]
 pub struct Ray<N: Scalar + Real> {
