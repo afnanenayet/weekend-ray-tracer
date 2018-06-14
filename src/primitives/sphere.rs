@@ -10,10 +10,7 @@ pub struct Sphere<N: Scalar + Real> {
     pub center: Vector3<N>,
 }
 
-impl<N: Scalar + Real + Num> Hittable for Sphere<N>
-where
-    f32: Mul<N>,
-{
+impl<N: Scalar + Real> Hittable for Sphere<N> {
     type NumType = N;
 
     // TODO: make sure that the types are compatible with floating point operations
