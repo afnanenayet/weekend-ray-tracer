@@ -44,7 +44,6 @@ mod test {
         let d: Vector3<f32> = Vector3::new(0.0, 0.0, 1.0);
         let r: Ray<f32> = Ray::new(&o, &d);
 
-        let r: Ray<f32> = Ray::new(&o, &d);
         let point = r.point_at_param(-1.0);
         assert_eq!(point, Vector3::new(0.0, 0.0, -1.0));
 
@@ -60,5 +59,7 @@ mod test {
             origin: o,
             direction: d,
         };
+        assert_eq!(r.origin, o);
+        assert_eq!(r.direction, d);
     }
 }
