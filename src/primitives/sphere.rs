@@ -1,16 +1,16 @@
 use hittable::{HitRecord, Hittable};
-use na::{self, Real, Scalar, Vector3};
+use na::{self, Real, Vector3};
 use ray::Ray;
 use std::ops::Mul;
 
 /// Contains the relevant information for a sphere primitive
 #[derive(Clone, Debug, Copy)]
-pub struct Sphere<N: Scalar + Real> {
+pub struct Sphere<N: Real> {
     pub radius: N,
     pub center: Vector3<N>,
 }
 
-impl<N: Scalar + Real> Hittable for Sphere<N> {
+impl<N: Real> Hittable for Sphere<N> {
     type NumType = N;
 
     // TODO: make sure that the types are compatible with floating point operations
