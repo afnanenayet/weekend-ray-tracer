@@ -1,5 +1,5 @@
 use hittable::{HitRecord, Hittable};
-use na::{self, Num, Real, Scalar, Vector3};
+use na::{self, Real, Scalar, Vector3};
 use ray::Ray;
 use std::ops::Mul;
 
