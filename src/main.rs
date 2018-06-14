@@ -11,22 +11,26 @@ use trtlib::typedefs::*;
 ///
 /// _ TODO _: this function should be moved to somewhere more sensible, perhaps a structure to
 /// hold meshes/geometric primitives
-fn hit_sphere(center: &Point3f, radius: f32, r: &Ray3f) -> bool {
+fn hit_sphere(center: &Point3f, radius: f32, r: &Ray3f) -> f32 {
     let oc: Vector3f = r.origin - center;
     let a = na::norm_squared(&r.direction);
     let b = 2.0 * na::dot(&oc, &r.direction);
     let c = na::norm_squared(&oc) - radius.powi(2);
     let discriminant = b.powi(2) - 4.0 * a * c;
 
-    // using an analytic solution to determine whether sphere has been hit
-    discriminant > 0.0
+    if discriminant < 0.0 {
+        return -1.0;
+    }
+    (-b - discriminant.sqrt()) / (2.0 * a)
 }
 
 /// Calculate the background color that corresponds to an outgoing camera ray. Creates a blend of
 /// blue and white.
 fn color(r: &Ray3f) -> Color3f {
-    if hit_sphere(&Vector3::new(0.0, 0.0, -1.0), 0.5, r) {
-        return Vector3::new(1.0, 0.0, 0.0);
+    let t = hit_sphere(&Vector3::new(0.0, 0.0, -1.0), 0.5, r);
+    if t > 0.0 {
+        let normal = r.point_at_param(t) - &Vector3f::new(0.0, 0.0, -1.0);
+        return 0.5 * Vector3::new(normal.x + 1.0, normal.y + 1.0, normal.z + 1.0);
     }
 
     let unit_dir = r.direction.normalize();
@@ -37,8 +41,8 @@ fn color(r: &Ray3f) -> Color3f {
 }
 
 fn main() -> std::io::Result<()> {
-    let nx = 1920;
-    let ny = 1080;
+    let nx = 200;
+    let ny = 100;
 
     // open file and write P3 file header
     let mut file = File::create("pic.P3")?;
