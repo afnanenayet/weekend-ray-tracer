@@ -1,12 +1,10 @@
-# trt
-
-Toy Ray Tracer
+# weekend ray tracer
 
 [![Build Status](https://travis-ci.org/afnanenayet/basic-ray-tracer.svg?branch=master)](https://travis-ci.org/afnanenayet/basic-ray-tracer)
 
 ## Synopsis
 
-This is a toy ray tracer written in Rust.
+This is a toy ray tracer written in Rust, following "Ray Tracing in One Weekend"
 
 ## Sources
 
@@ -22,3 +20,17 @@ as well as information from Dartmouth's CS87 rendering course, taught
 by [Wojciech Jarosz](https://cs.dartmouth.edu/~wjarosz/).
 
 I'm also using [nalgebra](http://nalgebra.org) as my linear algebra library.
+
+## Usage
+
+To run tests:
+
+    cargo test
+
+To build:
+
+    cargo build --release
+
+To run:
+    
+    cargo run --release
