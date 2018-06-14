@@ -8,14 +8,21 @@ pub struct HitRecord<N: Scalar + Real> {
     t: N,
     p: Vector3<N>,
     normal: Vector3<N>,
-    hit: bool,
 }
 
 /// Any object/struct that implements `Hittable` is something that can be hit by a ray and
 /// rendered on-screen. The function returns a `HitRecord` struct, which contains a relevant
 /// information about the hit
 pub trait Hittable {
+    type NumType: Scalar + Real;
+
     /// Whether the object was hit. If so, it will be indicated in the hit record along with other
-    /// relevant info.
-    fn hit<N: Scalar + Real>(ray: &Ray<N>, t_min: N, t_max: N) -> HitRecord<N>;
+    /// relevant info. If there is a hit, then there will be a hit record. If not, a None object
+    /// will be returned.
+    fn hit(
+        &self,
+        ray: &Ray<Self::NumType>,
+        t_min: Self::NumType,
+        t_max: Self::NumType,
+    ) -> Option<HitRecord<Self::NumType>>;
 }
