@@ -1,7 +1,6 @@
 use hittable::{HitRecord, Hittable};
 use na::{self, Real, Vector3};
 use ray::Ray;
-use std::ops::Mul;
 
 /// Contains the relevant information for a sphere primitive
 #[derive(Clone, Debug, Copy)]
@@ -10,10 +9,12 @@ pub struct Sphere<N: Real> {
     pub center: Vector3<N>,
 }
 
-impl<N: Real> Hittable for Sphere<N> {
-    type NumType = N;
+// This could be more generic, but even if it was, it would be generic over float primitives,
+// which would require me to implement traits over primitive types, which is not recommended
+// by Rust best practices.
+impl Hittable for Sphere<f32> {
+    type NumType = f32;
 
-    // TODO: make sure that the types are compatible with floating point operations
     fn hit(
         &self,
         ray: &Ray<Self::NumType>,
@@ -27,7 +28,7 @@ impl<N: Real> Hittable for Sphere<N> {
         let discriminant = b.powi(2) - 4.0 * a * c;
         let t = (-b - discriminant.sqrt()) / (2.0 * a);
 
-        if discriminant >= 0 && (t < t_max && t > t_min) {
+        if discriminant >= 0.0 && (t < t_max && t > t_min) {
             let p = ray.point_at_param(t);
             let normal = (p - self.center).map(|n| n / self.radius);
             return Some(HitRecord { t, p, normal });

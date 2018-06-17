@@ -5,19 +5,19 @@ use ray::Ray;
 /// ray, and relevant location information if it has.
 #[derive(Clone, Debug, PartialEq, Copy)]
 pub struct HitRecord<N: Real> {
-    t: N,
-    p: Vector3<N>,
-    normal: Vector3<N>,
+    pub t: N,
+    pub p: Vector3<N>,
+    pub normal: Vector3<N>,
 }
 
 /// Any object/struct that implements `Hittable` is something that can be hit by a ray and
 /// rendered on-screen. The function returns a `HitRecord` struct, which contains a relevant
-/// information about the hit
+/// information about the hit.
 pub trait Hittable {
     type NumType: Real;
 
     /// Whether the object was hit. If so, it will be indicated in the hit record along with other
-    /// relevant info. If there is a hit, then there will be a hit record. If not, a None object
+    /// relevant info. If there is a hit, then there will be a hit record. If not, a `None`
     /// will be returned.
     fn hit(
         &self,
