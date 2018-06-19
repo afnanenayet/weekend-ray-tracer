@@ -15,23 +15,22 @@ pub struct Sphere<N: Real> {
 impl Hittable for Sphere<f32> {
     type NumType = f32;
 
-    fn hit(
-        &self,
-        ray: &Ray<Self::NumType>,
-        t_min: Self::NumType,
-        t_max: Self::NumType,
-    ) -> Option<HitRecord<Self::NumType>> {
+    fn hit(&self, ray: &Ray<Self::NumType>) -> Option<HitRecord<Self::NumType>> {
         let oc = ray.origin - self.center;
         let a = na::norm_squared(&ray.direction);
-        let b = 2.0 * na::dot(&oc, &ray.direction);
+        let b = na::dot(&oc, &ray.direction);
         let c = na::norm_squared(&oc) - self.radius.powi(2);
-        let discriminant = b.powi(2) - 4.0 * a * c;
-        let t = (-b - discriminant.sqrt()) / (2.0 * a);
+        let discriminant = b.powi(2) - (a * c);
+        let t = (-b - discriminant.sqrt()) / a;
 
-        if discriminant >= 0.0 && (t < t_max && t > t_min) {
+        if discriminant >= 0.0 {
             let p = ray.point_at_param(t);
             let normal = (p - self.center).map(|n| n / self.radius);
-            return Some(HitRecord { t, p, normal });
+            return Some(HitRecord {
+                t: t,
+                p: p,
+                normal: normal,
+            });
         }
         None
     }
