@@ -57,16 +57,16 @@ fn color(r: &Ray3f, primitives: &HitList<f32>) -> Color3f {
 }
 
 fn main() -> std::io::Result<()> {
-    let nx = 200;
-    let ny = 100;
-    let ns = 100;
+    let nx = 200; // width
+    let ny = 100; // height
+    let ns = 100; // antialiasing factor
 
     // initialize scene objects
     let primitives = scene();
     let camera: Camera<f32> = Default::default();
 
     // open file and write P3 file header
-    let mut file = File::create("pic.p3")?;
+    let mut file = File::create("pic.ppm")?;
     let file_str = format!("P3\n{} {}\n255\n", nx, ny);
     file.write_all(file_str.as_bytes())?;
 
