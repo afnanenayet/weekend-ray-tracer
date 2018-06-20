@@ -5,7 +5,7 @@ use typedefs::Vector3f;
 
 /// stores data for camera abstraction
 #[derive(Clone, Debug, PartialEq, Copy)]
-struct Camera<N: Real> {
+pub struct Camera<N: Real> {
     pub origin: Vector3<N>,
     pub horizontal: Vector3<N>,
     pub vertical: Vector3<N>,
@@ -32,5 +32,50 @@ impl Default for Camera<f32> {
             vertical: Vector3f::new(0.0, 2.0, 0.0),
             lower_left: Vector3f::new(-2.0, -1.0, -1.0),
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_get_ray() {
+        let camera: Camera<f32> = Default::default();
+
+        // this is equivalent to the lower left corner of the frame
+        let ray: Ray<f32> = Ray {
+            origin: Vector3f::new(0.0, 0.0, 0.0),
+            direction: Vector3f::new(-2.0, -1.0, -1.0),
+        };
+        assert_eq!(camera.get_ray(0.0, 0.0), ray);
+
+        // middle
+        let ray: Ray<f32> = Ray {
+            origin: Vector3f::new(0.0, 0.0, 0.0),
+            direction: Vector3f::new(0.0, 0.0, -1.0),
+        };
+        assert_eq!(camera.get_ray(0.5, 0.5), ray);
+
+        // upper left corner
+        let ray: Ray<f32> = Ray {
+            origin: Vector3f::new(0.0, 0.0, 0.0),
+            direction: Vector3f::new(-2.0, 1.0, -1.0),
+        };
+        assert_eq!(camera.get_ray(0.0, 1.0), ray);
+
+        // upper right corner
+        let ray: Ray<f32> = Ray {
+            origin: Vector3f::new(0.0, 0.0, 0.0),
+            direction: Vector3f::new(2.0, 1.0, -1.0),
+        };
+        assert_eq!(camera.get_ray(1.0, 1.0), ray);
+
+        // lower right corner
+        let ray: Ray<f32> = Ray {
+            origin: Vector3f::new(0.0, 0.0, 0.0),
+            direction: Vector3f::new(2.0, -1.0, -1.0),
+        };
+        assert_eq!(camera.get_ray(1.0, 0.0), ray);
     }
 }

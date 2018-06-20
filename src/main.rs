@@ -1,12 +1,16 @@
 extern crate nalgebra as na;
 extern crate pbr;
+extern crate rand;
 extern crate trtlib;
 
 use na::Vector3;
 use pbr::ProgressBar;
+use rand::{thread_rng, Rng};
+use std::default::Default;
 use std::fs::File;
 use std::io::prelude::*;
 use std::vec::Vec;
+use trtlib::camera::Camera;
 use trtlib::hittable::{HitList, HitRecord, Hittable};
 use trtlib::primitives::sphere::Sphere;
 use trtlib::typedefs::*;
@@ -53,43 +57,46 @@ fn color(r: &Ray3f, primitives: &HitList<f32>) -> Color3f {
 }
 
 fn main() -> std::io::Result<()> {
-    let nx = 400;
-    let ny = 200;
+    let nx = 200;
+    let ny = 100;
+    let ns = 100;
 
+    // initialize scene objects
     let primitives = scene();
+    let camera: Camera<f32> = Default::default();
 
     // open file and write P3 file header
-    let mut file = File::create("pic.P3")?;
+    let mut file = File::create("pic.p3")?;
     let file_str = format!("P3\n{} {}\n255\n", nx, ny);
     file.write_all(file_str.as_bytes())?;
 
-    // image corners
-    let lower_left = Vector3::new(-2.0, -1.0, -1.0);
-    let horizontal: Vector3f = Vector3::new(4.0, 0.0, 0.0);
-    let vertical: Vector3f = Vector3::new(0.0, 2.0, 0.0);
-    let origin: Vector3f = Vector3::new(0.0, 0.0, 0.0);
-
+    // random generator
+    let mut rng = thread_rng();
     let mut j = ny;
-    let mut i = 0;
-    //let mut j = 0;
 
     // initialize progress bar for terminal
     let mut pb = ProgressBar::new(nx * ny);
 
     while j > 0 {
-        while i < nx {
-            let u = (i as f32) / (nx as f32);
-            let v = (j as f32) / (ny as f32);
+        for i in 0..nx {
+            // accumulate colors via AA
+            let mut col = Color3f::new(0.0, 0.0, 0.0);
 
-            let dir: Vector3f = lower_left + (u * horizontal) + (v * vertical);
-            let r = Ray3f::new(&origin, &dir);
-            let color: Color3f = color(&r, &primitives);
+            for _ in 0..ns {
+                let u = (i as f32 + rng.gen::<f32>()) / (nx as f32);
+                let v = (j as f32 + rng.gen::<f32>()) / (ny as f32);
+                let r = camera.get_ray(u, v);
+                col += color(&r, &primitives);
+            }
+
+            // average out the color values
+            col /= ns as f32;
 
             // writing colors as u16 instead of u8 because this allows us to sanity check
             // whether colors would wrap/be invalid
-            let ir = (color.x * 255.99) as u16;
-            let ig = (color.y * 255.99) as u16;
-            let ib = (color.z * 255.99) as u16;
+            let ir = (col.x * 255.99) as u16;
+            let ig = (col.y * 255.99) as u16;
+            let ib = (col.z * 255.99) as u16;
             let mut file_str = format!("{} {} {}\n", ir, ig, ib);
 
             // write to file with some sanity checking
@@ -98,11 +105,8 @@ fn main() -> std::io::Result<()> {
                 file_str = "1 1 1\n".to_string();
             }
             file.write_all(file_str.as_bytes())?;
-
             pb.inc();
-            i += 1;
         }
-        i = 0;
         j -= 1;
     }
     Ok(())
