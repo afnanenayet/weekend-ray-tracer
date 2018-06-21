@@ -6,6 +6,14 @@
 
 This is a toy ray tracer written in Rust, following "Ray Tracing in One Weekend"
 
+## Pictures
+
+![Spheres shaded by their normals with no antialiasing](sphere_lo_no_aa.ppm)
+
+Spheres, shaded by their normals, with no anti aliasing
+
+![Spheres shaded by their normals with antialiasing](sphere_lo_aa.ppm)
+
 ## Sources
 
 I used these sources for reference and inspiration to help me with this project.
@@ -32,5 +40,5 @@ To build:
     cargo build --release
 
 To run:
-    
+
     cargo run --release
