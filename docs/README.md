@@ -8,11 +8,11 @@ This is a toy ray tracer written in Rust, following "Ray Tracing in One Weekend"
 
 ## Pictures
 
-![Spheres shaded by their normals with no antialiasing](sphere_lo_no_aa.ppm)
+![Spheres shaded by their normals with no antialiasing](sphere_lo_no_aa.png)
 
 Spheres, shaded by their normals, with no anti aliasing
 
-![Spheres shaded by their normals with antialiasing](sphere_lo_aa.ppm)
+![Spheres shaded by their normals with antialiasing](sphere_lo_aa.png)
 
 ## Sources
 
