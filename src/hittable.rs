@@ -1,3 +1,4 @@
+use material::BSDF;
 use na::{Real, Vector3};
 use ray::Ray;
 
@@ -26,24 +27,25 @@ pub trait Hittable {
 /// detect whether any geometry has been hit, and also makes it easy to add primitives to the
 /// list.
 pub struct HitList<N> {
-    pub list: Vec<Box<Hittable<NumType = N>>>,
+    pub list: Vec<(Box<Hittable<NumType = N>>, Box<BSDF<N>>)>,
 }
 
 impl<N: Real> HitList<N> {
-    /// Return a `HitRecord` struct if any of the primitives in the hit list were hit by the
-    /// ray, within the bounds (inclusive). If nothing was hit, `None` will be returned.
+    /// Return a tuple with a (`HitRecord` struct, `BSDF`) struct, if any structure in the hit
+    /// list is hit by the ray, within the bounds. If nothing is hit, `None` will be returned.
     pub fn any_hit(
         &self,
         ray: &Ray<N>,
         t_min: Option<N>,
         t_max: Option<N>,
-    ) -> Option<HitRecord<N>> {
+    ) -> Option<(HitRecord<N>, &Box<BSDF<N>>)> {
         let mut closest_hit: Option<HitRecord<N>> = None;
+        let mut mat: &Box<BSDF<N>> = &self.list[0].1;
 
         // use iter instead of into_iter because we don't actually need to manipulate
         // any of the primitives, and we can avoid a compiler error
-        for primitive in self.list.iter() {
-            let record = primitive.hit(ray);
+        for pair in self.list.iter() {
+            let record = pair.0.hit(ray);
 
             if record.is_some()
                 && (closest_hit.is_none() || record.unwrap().t < closest_hit.unwrap().t)
@@ -51,9 +53,13 @@ impl<N: Real> HitList<N> {
                 && (t_max.is_none() || record.unwrap().t <= t_max.unwrap())
             {
                 closest_hit = record;
+                mat = &pair.1;
             }
         }
 
-        return closest_hit;
+        if closest_hit.is_some() {
+            return Some((closest_hit.unwrap(), mat));
+        }
+        return None;
     }
 }

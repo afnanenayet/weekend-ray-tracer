@@ -12,22 +12,30 @@ use std::io::prelude::*;
 use std::vec::Vec;
 use trtlib::camera::Camera;
 use trtlib::hittable::{HitList, HitRecord, Hittable};
+use trtlib::material::diffuse::Diffuse;
+use trtlib::material::BSDF;
 use trtlib::primitives::sphere::Sphere;
 use trtlib::typedefs::*;
 
 /// Constructs the objects in the scene and returns a vector populated by those objects.
 fn scene() -> HitList<f32> {
-    let mut v: Vec<Box<Hittable<NumType = f32>>> = Vec::new();
+    let mut v: Vec<(Box<Hittable<NumType = f32>>, Box<BSDF<f32>>)> = Vec::new();
 
     // specify objects here
-    v.push(Box::new(Sphere {
-        radius: 0.5,
-        center: Vector3f::new(0.0, 0.0, -1.0),
-    }));
-    v.push(Box::new(Sphere {
-        radius: 100.0,
-        center: Vector3f::new(0.0, -100.5, -1.0),
-    }));
+    v.push((
+        Box::new(Sphere {
+            radius: 0.5,
+            center: Vector3f::new(0.0, 0.0, -1.0),
+        }),
+        Box::new(Diffuse { albedo: 0.5 }),
+    ));
+    v.push((
+        Box::new(Sphere {
+            radius: 100.0,
+            center: Vector3f::new(0.0, -100.5, -1.0),
+        }),
+        Box::new(Diffuse { albedo: 0.5 }),
+    ));
 
     // Return list with the HitList wrapper type
     HitList { list: v }
@@ -37,14 +45,27 @@ fn scene() -> HitList<f32> {
 /// blue and white.
 ///
 /// `r` is the outgoing ray from the camera to the world
-/// `objects` is a list of geometric primitives that are in the scene
-fn color(r: &Ray3f, primitives: &HitList<f32>) -> Color3f {
-    let hit_record: Option<HitRecord<f32>> = primitives.any_hit(r, Some(0.0), None);
+/// `objects` is a list of tuple(geometric primitives, materials) that are in the scene
+/// `depth` is the recursion depth for global illumination
+/// `depth_limit` is the recursion depth limit for global illumination
+fn color(r: &Ray3f, primitives: &HitList<f32>, depth: u32, depth_limit: u32) -> Color3f {
+    let hit_record: Option<(HitRecord<f32>, &Box<BSDF<f32>>)> =
+        primitives.any_hit(r, Some(0.001), None);
 
     match hit_record {
-        Some(hr) => {
-            // with hit, return color based on the normal
-            return 0.5 * Vector3::new(hr.normal.x + 1.0, hr.normal.y + 1.0, hr.normal.z + 1.0);
+        Some(pair) => {
+            let hr = pair.0;
+            let bsdf = pair.1;
+
+            // if depth is less than depth limit, then global illumination
+            if depth < depth_limit {
+                let bsdf_record = bsdf.scatter(r, &hr);
+                let attenuation: f32 = bsdf_record.attenuated;
+                let scattered_ray: Ray3f = bsdf_record.out_scattered;
+                return attenuation * color(&scattered_ray, primitives, depth + 1, depth_limit);
+            } else {
+                return Vector3f::new(0.0, 0.0, 0.0);
+            }
         }
         None => {
             let unit_dir = r.direction.normalize();
@@ -64,6 +85,7 @@ fn main() -> std::io::Result<()> {
     // initialize scene objects
     let primitives = scene();
     let camera: Camera<f32> = Default::default();
+    let rec_lim = 50;
 
     // open file and write P3 file header
     let mut file = File::create("pic.ppm")?;
@@ -86,11 +108,12 @@ fn main() -> std::io::Result<()> {
                 let u = (i as f32 + rng.gen::<f32>()) / (nx as f32);
                 let v = (j as f32 + rng.gen::<f32>()) / (ny as f32);
                 let r = camera.get_ray(u, v);
-                col += color(&r, &primitives);
+                col += color(&r, &primitives, 0, rec_lim);
             }
 
             // average out the color values
             col /= ns as f32;
+            col.apply(|e| e.sqrt());
 
             // writing colors as u16 instead of u8 because this allows us to sanity check
             // whether colors would wrap/be invalid
