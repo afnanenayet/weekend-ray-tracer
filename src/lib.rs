@@ -7,5 +7,5 @@ pub mod hittable;
 pub mod material;
 pub mod primitives;
 pub mod ray;
-pub mod typedefs;
 pub mod sample;
+pub mod typedefs;

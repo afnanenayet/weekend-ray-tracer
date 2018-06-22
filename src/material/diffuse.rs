@@ -1,9 +1,9 @@
-use super::{BSDF, BSDFRecord};
-use ::num::{FromPrimitive};
-use ::ray::Ray;
-use ::sample::unit_sphere;
-use ::hittable::HitRecord;
-use ::na::{Real, Vector3};
+use super::{BSDFRecord, BSDF};
+use hittable::HitRecord;
+use na::{Real, Vector3};
+use num::FromPrimitive;
+use ray::Ray;
+use sample::unit_sphere;
 
 /// Holds the properties for a diffuse BSDF
 struct Diffuse<N: Real> {
