@@ -16,6 +16,14 @@ Spheres, shaded by their normals, with no antialiasing
 
 Spheres, shaded by their normals, with antialiasing
 
+![Mirror spheres](sphere_mirror.png)
+
+Mirror spheres, no gamma correction
+
+![diffuse sphere](sphere_diffuse.png)
+
+Lambertian spheres, with gamma correction
+
 ## Sources
 
 I used these sources for reference and inspiration to help me with this project.
