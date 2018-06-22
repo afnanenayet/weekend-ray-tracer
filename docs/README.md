@@ -47,8 +47,8 @@ To run tests:
 
 To build:
 
-    cargo build --release
+    RUSTFLAGS="-C target-cpu=native" cargo build --release
 
 To run:
 
-    cargo run --release
+    RUSTFLAGS="-C target-cpu=native" cargo run --release
