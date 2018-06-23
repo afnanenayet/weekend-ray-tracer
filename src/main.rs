@@ -12,6 +12,7 @@ use rayon::prelude::*;
 use std::default::Default;
 use std::fs::File;
 use std::io::prelude::*;
+use std::time::Instant;
 use std::vec::Vec;
 use trtlib::camera::Camera;
 use trtlib::hittable::{HitList, HitRecord, Hittable};
@@ -19,7 +20,6 @@ use trtlib::material::diffuse::Diffuse;
 use trtlib::material::BSDF;
 use trtlib::primitives::sphere::Sphere;
 use trtlib::typedefs::*;
-use std::time::Instant;
 
 /// Constructs the objects in the scene and returns a vector populated by those objects.
 fn scene() -> HitList<f32> {
@@ -27,19 +27,19 @@ fn scene() -> HitList<f32> {
 
     // specify objects here
     v.push((
-            Box::new(Sphere {
-                radius: 0.5,
-                center: Vector3f::new(0.0, 0.0, -1.0),
-            }),
-            Box::new(Diffuse { albedo: 0.5 }),
-            ));
+        Box::new(Sphere {
+            radius: 0.5,
+            center: Vector3f::new(0.0, 0.0, -1.0),
+        }),
+        Box::new(Diffuse { albedo: 0.5 }),
+    ));
     v.push((
-            Box::new(Sphere {
-                radius: 100.0,
-                center: Vector3f::new(0.0, -100.5, -1.0),
-            }),
-            Box::new(Diffuse { albedo: 0.5 }),
-            ));
+        Box::new(Sphere {
+            radius: 100.0,
+            center: Vector3f::new(0.0, -100.5, -1.0),
+        }),
+        Box::new(Diffuse { albedo: 0.5 }),
+    ));
 
     // Return list with the HitList wrapper type
     HitList { list: v }
@@ -131,7 +131,7 @@ fn main() -> std::io::Result<()> {
             }
             return file_str;
         })
-    .collect();
+        .collect();
 
     let elapsed = start_time.elapsed().as_secs();
 
