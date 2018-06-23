@@ -19,6 +19,7 @@ nalgebra = "0.15.2"
 pbr = "1.0.1"
 rand = "0.5.1"
 num = "0.1.42"
+rayon = "1.0.1"
 
 [profile.release]
 opt-level = 3

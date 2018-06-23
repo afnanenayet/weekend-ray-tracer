@@ -1,11 +1,13 @@
 extern crate nalgebra as na;
 extern crate pbr;
 extern crate rand;
+extern crate rayon;
 extern crate trtlib;
 
 use na::Vector3;
 use pbr::ProgressBar;
 use rand::{thread_rng, Rng};
+use rayon::prelude::*;
 use std::default::Default;
 use std::fs::File;
 use std::io::prelude::*;
@@ -16,6 +18,7 @@ use trtlib::material::diffuse::Diffuse;
 use trtlib::material::BSDF;
 use trtlib::primitives::sphere::Sphere;
 use trtlib::typedefs::*;
+use rayon::iter::IntoParallelIterator;
 
 /// Constructs the objects in the scene and returns a vector populated by those objects.
 fn scene() -> HitList<f32> {
@@ -93,14 +96,15 @@ fn main() -> std::io::Result<()> {
     file.write_all(file_str.as_bytes())?;
 
     // random generator
-    let mut rng = thread_rng();
     let mut j = ny;
 
     // initialize progress bar for terminal
     let mut pb = ProgressBar::new(nx * ny);
 
     while j > 0 {
-        for i in 0..nx {
+        (0..nx).into_par_iter().for_each(|i| {
+            let mut rng = thread_rng();
+
             // accumulate colors via AA
             let mut col = Color3f::new(0.0, 0.0, 0.0);
 
@@ -127,9 +131,9 @@ fn main() -> std::io::Result<()> {
                 println!("ERROR: invalid color value ({}, {}, {})", ir, ig, ib);
                 file_str = "1 1 1\n".to_string();
             }
-            file.write_all(file_str.as_bytes())?;
+            file.write_all(file_str.as_bytes()).unwrap();
             pb.inc();
-        }
+        });
         j -= 1;
     }
     Ok(())
