@@ -19,6 +19,7 @@ use trtlib::material::diffuse::Diffuse;
 use trtlib::material::BSDF;
 use trtlib::primitives::sphere::Sphere;
 use trtlib::typedefs::*;
+use std::time::Instant;
 
 /// Constructs the objects in the scene and returns a vector populated by those objects.
 fn scene() -> HitList<f32> {
@@ -26,19 +27,19 @@ fn scene() -> HitList<f32> {
 
     // specify objects here
     v.push((
-        Box::new(Sphere {
-            radius: 0.5,
-            center: Vector3f::new(0.0, 0.0, -1.0),
-        }),
-        Box::new(Diffuse { albedo: 0.5 }),
-    ));
+            Box::new(Sphere {
+                radius: 0.5,
+                center: Vector3f::new(0.0, 0.0, -1.0),
+            }),
+            Box::new(Diffuse { albedo: 0.5 }),
+            ));
     v.push((
-        Box::new(Sphere {
-            radius: 100.0,
-            center: Vector3f::new(0.0, -100.5, -1.0),
-        }),
-        Box::new(Diffuse { albedo: 0.5 }),
-    ));
+            Box::new(Sphere {
+                radius: 100.0,
+                center: Vector3f::new(0.0, -100.5, -1.0),
+            }),
+            Box::new(Diffuse { albedo: 0.5 }),
+            ));
 
     // Return list with the HitList wrapper type
     HitList { list: v }
@@ -90,61 +91,64 @@ fn main() -> std::io::Result<()> {
     let camera: Camera<f32> = Default::default();
     let rec_lim = 50;
 
+    println!("Rendering scene...");
+
+    // time how long it takes to render the scene
+    let start_time = Instant::now();
+
+    let buffer: Vec<String> = (0..(nx * ny))
+        .into_par_iter()
+        .map(|idx| {
+            let j = ny - (idx / nx);
+            let i = idx % nx;
+            let mut rng = thread_rng();
+
+            // accumulate colors via AA
+            let mut col = Color3f::new(0.0, 0.0, 0.0);
+
+            for _ in 0..ns {
+                let u = (i as f32 + rng.gen::<f32>()) / (nx as f32);
+                let v = (j as f32 + rng.gen::<f32>()) / (ny as f32);
+                let r = camera.get_ray(u, v);
+                col += color(&r, &primitives, 0, rec_lim);
+            }
+
+            // average out the color values
+            col /= ns as f32;
+            col.apply(|e| e.sqrt());
+
+            // writing colors as u16 instead of u8 because this allows us to sanity check
+            // whether colors would wrap/be invalid
+            let ir = (col.x * 255.99) as u16;
+            let ig = (col.y * 255.99) as u16;
+            let ib = (col.z * 255.99) as u16;
+            let mut file_str = format!("{} {} {}\n", ir, ig, ib);
+
+            // write to file with some sanity checking
+            if ir > 256 || ig > 256 || ib > 256 {
+                println!("ERROR: invalid color value ({}, {}, {})", ir, ig, ib);
+                file_str = "1 1 1\n".to_string();
+            }
+            return file_str;
+        })
+    .collect();
+
+    let elapsed = start_time.elapsed().as_secs();
+
+    println!("Scene took {} seconds to render", elapsed);
+
+    println!("Writing buffer to file");
+    let mut pb = ProgressBar::new(buffer.len() as u64);
+
     // open file and write P3 file header
     let mut file = File::create("pic.ppm")?;
     let file_str = format!("P3\n{} {}\n255\n", nx, ny);
+
     file.write_all(file_str.as_bytes())?;
-
-    // random generator
-    let mut j = ny; // j corresponds to height of picture
-
-    // initialize progress bar for terminal
-    let mut pb = ProgressBar::new(ny);
-
-    while j > 0 {
-        let buffer: Vec<String> = (0..nx)
-            .into_par_iter()
-            .enumerate()
-            .map(|(i, _)| {
-                let mut rng = thread_rng();
-
-                // accumulate colors via AA
-                let mut col = Color3f::new(0.0, 0.0, 0.0);
-
-                for _ in 0..ns {
-                    let u = (i as f32 + rng.gen::<f32>()) / (nx as f32);
-                    let v = (j as f32 + rng.gen::<f32>()) / (ny as f32);
-                    let r = camera.get_ray(u, v);
-                    col += color(&r, &primitives, 0, rec_lim);
-                }
-
-                // average out the color values
-                col /= ns as f32;
-                col.apply(|e| e.sqrt());
-
-                // writing colors as u16 instead of u8 because this allows us to sanity check
-                // whether colors would wrap/be invalid
-                let ir = (col.x * 255.99) as u16;
-                let ig = (col.y * 255.99) as u16;
-                let ib = (col.z * 255.99) as u16;
-                let mut file_str = format!("{} {} {}\n", ir, ig, ib);
-
-                // write to file with some sanity checking
-                if ir > 256 || ig > 256 || ib > 256 {
-                    println!("ERROR: invalid color value ({}, {}, {})", ir, ig, ib);
-                    file_str = "1 1 1\n".to_string();
-                }
-                return file_str;
-            })
-            .collect();
-
-        // dump contents of buffer into file
-        for color in buffer.into_iter() {
-            file.write_all(color.as_bytes())?;
-        }
-
+    // dump contents of buffer into file
+    for color in buffer.into_iter() {
+        file.write_all(color.as_bytes())?;
         pb.inc();
-        j -= 1;
     }
     Ok(())
 }
