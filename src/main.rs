@@ -135,7 +135,7 @@ fn main() -> std::io::Result<()> {
 
     let elapsed = start_time.elapsed().as_secs();
 
-    println!("Scene took {} seconds to render", elapsed);
+    println!("Scene took {} seconds to render to buffer\n", elapsed);
 
     println!("Writing buffer to file");
     let mut pb = ProgressBar::new(buffer.len() as u64);
