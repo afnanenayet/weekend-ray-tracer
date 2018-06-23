@@ -7,6 +7,7 @@ extern crate trtlib;
 use na::Vector3;
 use pbr::ProgressBar;
 use rand::{thread_rng, Rng};
+use rayon::iter::IntoParallelIterator;
 use rayon::prelude::*;
 use std::default::Default;
 use std::fs::File;
@@ -18,11 +19,10 @@ use trtlib::material::diffuse::Diffuse;
 use trtlib::material::BSDF;
 use trtlib::primitives::sphere::Sphere;
 use trtlib::typedefs::*;
-use rayon::iter::IntoParallelIterator;
 
 /// Constructs the objects in the scene and returns a vector populated by those objects.
 fn scene() -> HitList<f32> {
-    let mut v: Vec<(Box<Hittable<NumType = f32>>, Box<BSDF<f32>>)> = Vec::new();
+    let mut v: Vec<(Box<Hittable<NumType = f32> + Sync>, Box<BSDF<f32> + Sync>)> = Vec::new();
 
     // specify objects here
     v.push((
@@ -52,7 +52,7 @@ fn scene() -> HitList<f32> {
 /// `depth` is the recursion depth for global illumination
 /// `depth_limit` is the recursion depth limit for global illumination
 fn color(r: &Ray3f, primitives: &HitList<f32>, depth: u32, depth_limit: u32) -> Color3f {
-    let hit_record: Option<(HitRecord<f32>, &Box<BSDF<f32>>)> =
+    let hit_record: Option<(HitRecord<f32>, &Box<BSDF<f32> + Sync>)> =
         primitives.any_hit(r, Some(0.001), None);
 
     match hit_record {
@@ -81,8 +81,8 @@ fn color(r: &Ray3f, primitives: &HitList<f32>, depth: u32, depth_limit: u32) -> 
 }
 
 fn main() -> std::io::Result<()> {
-    let nx = 200; // width
-    let ny = 100; // height
+    let nx = 1920; // width
+    let ny = 1080; // height
     let ns = 100; // antialiasing factor
 
     // initialize scene objects
@@ -96,44 +96,54 @@ fn main() -> std::io::Result<()> {
     file.write_all(file_str.as_bytes())?;
 
     // random generator
-    let mut j = ny;
+    let mut j = ny; // j corresponds to height of picture
 
     // initialize progress bar for terminal
-    let mut pb = ProgressBar::new(nx * ny);
+    let mut pb = ProgressBar::new(ny);
 
     while j > 0 {
-        (0..nx).into_par_iter().for_each(|i| {
-            let mut rng = thread_rng();
+        let buffer: Vec<String> = (0..nx)
+            .into_par_iter()
+            .enumerate()
+            .map(|(i, _)| {
+                let mut rng = thread_rng();
 
-            // accumulate colors via AA
-            let mut col = Color3f::new(0.0, 0.0, 0.0);
+                // accumulate colors via AA
+                let mut col = Color3f::new(0.0, 0.0, 0.0);
 
-            for _ in 0..ns {
-                let u = (i as f32 + rng.gen::<f32>()) / (nx as f32);
-                let v = (j as f32 + rng.gen::<f32>()) / (ny as f32);
-                let r = camera.get_ray(u, v);
-                col += color(&r, &primitives, 0, rec_lim);
-            }
+                for _ in 0..ns {
+                    let u = (i as f32 + rng.gen::<f32>()) / (nx as f32);
+                    let v = (j as f32 + rng.gen::<f32>()) / (ny as f32);
+                    let r = camera.get_ray(u, v);
+                    col += color(&r, &primitives, 0, rec_lim);
+                }
 
-            // average out the color values
-            col /= ns as f32;
-            col.apply(|e| e.sqrt());
+                // average out the color values
+                col /= ns as f32;
+                col.apply(|e| e.sqrt());
 
-            // writing colors as u16 instead of u8 because this allows us to sanity check
-            // whether colors would wrap/be invalid
-            let ir = (col.x * 255.99) as u16;
-            let ig = (col.y * 255.99) as u16;
-            let ib = (col.z * 255.99) as u16;
-            let mut file_str = format!("{} {} {}\n", ir, ig, ib);
+                // writing colors as u16 instead of u8 because this allows us to sanity check
+                // whether colors would wrap/be invalid
+                let ir = (col.x * 255.99) as u16;
+                let ig = (col.y * 255.99) as u16;
+                let ib = (col.z * 255.99) as u16;
+                let mut file_str = format!("{} {} {}\n", ir, ig, ib);
 
-            // write to file with some sanity checking
-            if ir > 256 || ig > 256 || ib > 256 {
-                println!("ERROR: invalid color value ({}, {}, {})", ir, ig, ib);
-                file_str = "1 1 1\n".to_string();
-            }
-            file.write_all(file_str.as_bytes()).unwrap();
-            pb.inc();
-        });
+                // write to file with some sanity checking
+                if ir > 256 || ig > 256 || ib > 256 {
+                    println!("ERROR: invalid color value ({}, {}, {})", ir, ig, ib);
+                    file_str = "1 1 1\n".to_string();
+                }
+                return file_str;
+            })
+            .collect();
+
+        // dump contents of buffer into file
+        for color in buffer.into_iter() {
+            file.write_all(color.as_bytes())?;
+        }
+
+        pb.inc();
         j -= 1;
     }
     Ok(())

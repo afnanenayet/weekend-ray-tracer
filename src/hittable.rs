@@ -5,7 +5,7 @@ use ray::Ray;
 /// A struct that is returned by a hit query that indicates whether some object has been hit by a
 /// ray, and relevant location information if it has.
 #[derive(Clone, Debug, PartialEq, Copy)]
-pub struct HitRecord<N: Real> {
+pub struct HitRecord<N: Real + Sync> {
     pub t: N,
     pub p: Vector3<N>,
     pub normal: Vector3<N>,
@@ -26,11 +26,11 @@ pub trait Hittable {
 /// Essentially a wrapper for a vector of Hittable types. It provides a convenience function to
 /// detect whether any geometry has been hit, and also makes it easy to add primitives to the
 /// list.
-pub struct HitList<N> {
-    pub list: Vec<(Box<Hittable<NumType = N>>, Box<BSDF<N>>)>,
+pub struct HitList<N: Sync> {
+    pub list: Vec<(Box<Hittable<NumType = N> + Sync>, Box<BSDF<N> + Sync>)>,
 }
 
-impl<N: Real> HitList<N> {
+impl<N: Real + Sync> HitList<N> {
     /// Return a tuple with a (`HitRecord` struct, `BSDF`) struct, if any structure in the hit
     /// list is hit by the ray, within the bounds. If nothing is hit, `None` will be returned.
     pub fn any_hit(
@@ -38,9 +38,9 @@ impl<N: Real> HitList<N> {
         ray: &Ray<N>,
         t_min: Option<N>,
         t_max: Option<N>,
-    ) -> Option<(HitRecord<N>, &Box<BSDF<N>>)> {
+    ) -> Option<(HitRecord<N>, &Box<BSDF<N> + Sync>)> {
         let mut closest_hit: Option<HitRecord<N>> = None;
-        let mut mat: &Box<BSDF<N>> = &self.list[0].1;
+        let mut mat: &Box<BSDF<N> + Sync> = &self.list[0].1;
 
         // use iter instead of into_iter because we don't actually need to manipulate
         // any of the primitives, and we can avoid a compiler error
