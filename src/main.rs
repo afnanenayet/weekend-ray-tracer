@@ -14,8 +14,8 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::time::Instant;
 use std::vec::Vec;
-use trtlib::camera::Camera;
 use trtlib::camera::pinhole::Pinhole;
+use trtlib::camera::Camera;
 use trtlib::hittable::{HitList, HitRecord, Hittable};
 use trtlib::material::diffuse::Diffuse;
 use trtlib::material::mirror::Mirror;
@@ -107,8 +107,8 @@ fn color(r: &Ray3f, primitives: &HitList<f32>, depth: u32, depth_limit: u32) -> 
 }
 
 fn main() -> std::io::Result<()> {
-    let nx = 200; // width
-    let ny = 100; // height
+    let nx = 1920; // width
+    let ny = 1080; // height
     let ns = 100; // antialiasing factor
 
     // initialize scene objects
@@ -120,8 +120,9 @@ fn main() -> std::io::Result<()> {
 
     // time how long it takes to render the scene
     let start_time = Instant::now();
+    let mut buffer: Vec<String> = Vec::with_capacity(nx * ny);
 
-    let buffer: Vec<String> = (0..(nx * ny))
+    (0..(nx * ny))
         .into_par_iter()
         .map(|idx| {
             let j = ny - (idx / nx);
@@ -156,7 +157,7 @@ fn main() -> std::io::Result<()> {
             }
             return file_str;
         })
-        .collect();
+        .collect_into_vec(&mut buffer);
 
     let elapsed = start_time.elapsed().as_secs();
 
