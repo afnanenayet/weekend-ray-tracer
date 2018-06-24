@@ -3,6 +3,7 @@ extern crate num;
 extern crate rand;
 
 pub mod camera;
+pub mod common;
 pub mod hittable;
 pub mod material;
 pub mod primitives;

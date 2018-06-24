@@ -15,8 +15,10 @@ use std::io::prelude::*;
 use std::time::Instant;
 use std::vec::Vec;
 use trtlib::camera::Camera;
+use trtlib::camera::pinhole::Pinhole;
 use trtlib::hittable::{HitList, HitRecord, Hittable};
 use trtlib::material::diffuse::Diffuse;
+use trtlib::material::mirror::Mirror;
 use trtlib::material::BSDF;
 use trtlib::primitives::sphere::Sphere;
 use trtlib::typedefs::*;
@@ -31,14 +33,36 @@ fn scene() -> HitList<f32> {
             radius: 0.5,
             center: Vector3f::new(0.0, 0.0, -1.0),
         }),
-        Box::new(Diffuse { albedo: 0.5 }),
+        Box::new(Diffuse {
+            albedo: Vector3f::new(0.8, 0.3, 0.3),
+        }),
     ));
     v.push((
         Box::new(Sphere {
             radius: 100.0,
             center: Vector3f::new(0.0, -100.5, -1.0),
         }),
-        Box::new(Diffuse { albedo: 0.5 }),
+        Box::new(Diffuse {
+            albedo: Vector3::new(0.8, 0.8, 0.0),
+        }),
+    ));
+    v.push((
+        Box::new(Sphere {
+            radius: 0.5,
+            center: Vector3f::new(1.0, 0.0, -1.0),
+        }),
+        Box::new(Mirror {
+            albedo: Vector3::new(0.8, 0.6, 0.2),
+        }),
+    ));
+    v.push((
+        Box::new(Sphere {
+            radius: 0.5,
+            center: Vector3f::new(-1.0, 0.0, -1.0),
+        }),
+        Box::new(Mirror {
+            albedo: Vector3::new(0.8, 0.8, 0.8),
+        }),
     ));
 
     // Return list with the HitList wrapper type
@@ -64,9 +88,10 @@ fn color(r: &Ray3f, primitives: &HitList<f32>, depth: u32, depth_limit: u32) -> 
             // if depth is less than depth limit, then global illumination
             if depth < depth_limit {
                 let bsdf_record = bsdf.scatter(r, &hr);
-                let attenuation: f32 = bsdf_record.attenuated;
+                let attenuation: Vector3f = bsdf_record.attenuated;
                 let scattered_ray: Ray3f = bsdf_record.out_scattered;
-                return attenuation * color(&scattered_ray, primitives, depth + 1, depth_limit);
+                return color(&scattered_ray, primitives, depth + 1, depth_limit)
+                    .component_mul(&attenuation);
             } else {
                 return Vector3f::new(0.0, 0.0, 0.0);
             }
@@ -82,13 +107,13 @@ fn color(r: &Ray3f, primitives: &HitList<f32>, depth: u32, depth_limit: u32) -> 
 }
 
 fn main() -> std::io::Result<()> {
-    let nx = 1920; // width
-    let ny = 1080; // height
+    let nx = 200; // width
+    let ny = 100; // height
     let ns = 100; // antialiasing factor
 
     // initialize scene objects
     let primitives = scene();
-    let camera: Camera<f32> = Default::default();
+    let camera: Pinhole<f32> = Default::default();
     let rec_lim = 50;
 
     println!("Rendering scene...");

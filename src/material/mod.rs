@@ -1,8 +1,9 @@
 use hittable::HitRecord;
-use na::Real;
+use na::{Real, Vector3};
 use ray::Ray;
 
 pub mod diffuse;
+pub mod mirror;
 
 /// Any struct that implements the BSDF trait should contain only parameters relevant to the
 /// scattering function. It returns a record struct containing information relevant to the
@@ -16,10 +17,11 @@ pub trait BSDF<N: Real + Sync> {
 
 /// The BSDF record is similar to the `HitRecord` struct. It contains information about the
 /// scattering of light when an object is struck.
+#[derive(Clone, Debug, PartialEq, Copy)]
 pub struct BSDFRecord<N: Real + Sync> {
     /// The direction of the ray as a result of the scattering (where it goes)
     pub out_scattered: Ray<N>,
 
     /// How much the ray should be attenuated
-    pub attenuated: N,
+    pub attenuated: Vector3<N>,
 }

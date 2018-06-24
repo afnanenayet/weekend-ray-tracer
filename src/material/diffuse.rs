@@ -1,14 +1,16 @@
 use super::{BSDFRecord, BSDF};
 use hittable::HitRecord;
-use na::Real;
+use na::{Real, Vector3};
 use num::FromPrimitive;
 use ray::Ray;
 use sample::unit_sphere;
+use std::fmt::Debug;
 
 /// Holds the properties for a diffuse BSDF
-pub struct Diffuse<N: Real> {
+#[derive(Clone, Debug, PartialEq, Copy)]
+pub struct Diffuse<N: Real + Copy + Debug + PartialEq> {
     /// The fraction of light that is absorbed by the material
-    pub albedo: N,
+    pub albedo: Vector3<N>,
 }
 
 impl<N: FromPrimitive + Real> BSDF<N> for Diffuse<N> {
