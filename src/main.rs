@@ -3,6 +3,7 @@ extern crate pbr;
 extern crate rand;
 extern crate rayon;
 extern crate trtlib;
+extern crate image;
 
 use na::Vector3;
 use pbr::ProgressBar;
@@ -22,6 +23,7 @@ use trtlib::material::mirror::Mirror;
 use trtlib::material::BSDF;
 use trtlib::primitives::sphere::Sphere;
 use trtlib::typedefs::*;
+use image::ImageBuffer;
 
 /// Constructs the objects in the scene and returns a vector populated by those objects.
 fn scene() -> HitList<f32> {
@@ -107,8 +109,8 @@ fn color(r: &Ray3f, primitives: &HitList<f32>, depth: u32, depth_limit: u32) -> 
 }
 
 fn main() -> std::io::Result<()> {
-    let nx = 1920; // width
-    let ny = 1080; // height
+    let nx = 200; // width
+    let ny = 100; // height
     let ns = 100; // antialiasing factor
 
     // initialize scene objects
@@ -119,8 +121,10 @@ fn main() -> std::io::Result<()> {
     println!("Rendering scene...");
 
     // time how long it takes to render the scene
-    let start_time = Instant::now();
     let mut buffer: Vec<String> = Vec::with_capacity(nx * ny);
+
+    // want to time how long it takes to render, now how long it takes to allocate the memory
+    let start_time = Instant::now();
 
     (0..(nx * ny))
         .into_par_iter()
@@ -170,11 +174,15 @@ fn main() -> std::io::Result<()> {
     let mut file = File::create("pic.ppm")?;
     let file_str = format!("P3\n{} {}\n255\n", nx, ny);
 
+    let png = ImageBuffer::from_raw(nx as u32, ny as u32, buffer).unwrap();
+    // png.save("render.png")?;
+    /*
     file.write_all(file_str.as_bytes())?;
     // dump contents of buffer into file
     for color in buffer.into_iter() {
         file.write_all(color.as_bytes())?;
         pb.inc();
     }
+    */
     Ok(())
 }
