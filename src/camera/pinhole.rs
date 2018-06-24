@@ -46,7 +46,7 @@ mod test {
 
     #[test]
     fn test_get_ray() {
-        let camera: Camera<f32> = Default::default();
+        let camera: Pinhole<f32> = Default::default();
 
         // this is equivalent to the lower left corner of the frame
         let ray: Ray<f32> = Ray {

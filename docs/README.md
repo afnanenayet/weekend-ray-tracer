@@ -1,6 +1,6 @@
 # weekend ray tracer
 
-[![Build Status](https://travis-ci.org/afnanenayet/basic-ray-tracer.svg?branch=master)](https://travis-ci.org/afnanenayet/basic-ray-tracer)
+[![Build Status](https://travis-ci.org/afnanenayet/weekend-ray-tracer.svg?branch=master)](https://travis-ci.org/afnanenayet/weekend-ray-tracer)
 
 ## Synopsis
 
@@ -23,6 +23,10 @@ Mirror spheres, no gamma correction
 ![diffuse sphere](sphere_diffuse.png)
 
 Lambertian spheres, with gamma correction
+
+![lambertian, mirror spheres](sphere_mirror_colors.png)
+
+Lambertian and mirror spheres
 
 ## Sources
 
