@@ -1,10 +1,11 @@
+extern crate image;
 extern crate nalgebra as na;
 extern crate pbr;
 extern crate rand;
 extern crate rayon;
 extern crate trtlib;
-extern crate image;
 
+use image::{ImageBuffer, Rgb, RgbImage};
 use na::Vector3;
 use pbr::ProgressBar;
 use rand::{thread_rng, Rng};
@@ -12,7 +13,6 @@ use rayon::iter::IntoParallelIterator;
 use rayon::prelude::*;
 use std::default::Default;
 use std::fs::File;
-use std::io::prelude::*;
 use std::time::Instant;
 use std::vec::Vec;
 use trtlib::camera::pinhole::Pinhole;
@@ -23,7 +23,6 @@ use trtlib::material::mirror::Mirror;
 use trtlib::material::BSDF;
 use trtlib::primitives::sphere::Sphere;
 use trtlib::typedefs::*;
-use image::ImageBuffer;
 
 /// Constructs the objects in the scene and returns a vector populated by those objects.
 fn scene() -> HitList<f32> {
@@ -121,7 +120,7 @@ fn main() -> std::io::Result<()> {
     println!("Rendering scene...");
 
     // time how long it takes to render the scene
-    let mut buffer: Vec<String> = Vec::with_capacity(nx * ny);
+    let mut buffer: Vec<Rgb<u16>> = Vec::with_capacity(nx * ny);
 
     // want to time how long it takes to render, now how long it takes to allocate the memory
     let start_time = Instant::now();
@@ -152,37 +151,24 @@ fn main() -> std::io::Result<()> {
             let ir = (col.x * 255.99) as u16;
             let ig = (col.y * 255.99) as u16;
             let ib = (col.z * 255.99) as u16;
-            let mut file_str = format!("{} {} {}\n", ir, ig, ib);
+            // let mut file_str = format!("{} {} {}\n", ir, ig, ib);
+            let mut pixel = Rgb { data: [ir, ig, ib] };
 
             // write to file with some sanity checking
             if ir > 256 || ig > 256 || ib > 256 {
                 println!("ERROR: invalid color value ({}, {}, {})", ir, ig, ib);
-                file_str = "1 1 1\n".to_string();
+                pixel.data = [1, 1, 1]
             }
-            return file_str;
+            return pixel;
         })
         .collect_into_vec(&mut buffer);
 
     let elapsed = start_time.elapsed().as_secs();
 
     println!("Scene took {} seconds to render to buffer\n", elapsed);
-
+    // TODO figure out how to save this buffer in a way that the image crate will consume
     println!("Writing buffer to file");
-    let mut pb = ProgressBar::new(buffer.len() as u64);
 
-    // open file and write P3 file header
-    let mut file = File::create("pic.ppm")?;
-    let file_str = format!("P3\n{} {}\n255\n", nx, ny);
-
-    let png = ImageBuffer::from_raw(nx as u32, ny as u32, buffer).unwrap();
-    // png.save("render.png")?;
-    /*
-    file.write_all(file_str.as_bytes())?;
-    // dump contents of buffer into file
-    for color in buffer.into_iter() {
-        file.write_all(color.as_bytes())?;
-        pb.inc();
-    }
-    */
+    let png: RgbImage = ImageBuffer::from_vec(nx as u32, ny as u32, buffer).unwrap();
     Ok(())
 }

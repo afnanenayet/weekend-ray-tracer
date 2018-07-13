@@ -1,11 +1,11 @@
 //! The camera module defines a trait that implementations of cameras can use
 //! to generically swap-in different types of cameras.
 
+use super::Camera;
 use na::{Real, Vector3};
 use ray::Ray;
 use std::default::Default;
 use typedefs::Vector3f;
-use super::Camera;
 
 /// stores data for camera abstraction
 #[derive(Clone, Debug, PartialEq, Copy)]

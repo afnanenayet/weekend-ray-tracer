@@ -1,18 +1,17 @@
-use ::num::FromPrimitive;
-use ::na::{self, Real, Vector3};
-use material::{BSDFRecord, BSDF};
-use hittable::HitRecord;
-use ray::Ray;
 use common::mirror;
+use hittable::HitRecord;
+use material::{BSDFRecord, BSDF};
+use na::{self, Real, Vector3};
+use num::FromPrimitive;
+use ray::Ray;
 use std::fmt::Debug;
 
 /// Contains the parameters for a mirror struct. The albedo determines the tint of the color
-/// retrieved from the mirror BSDF. 
+/// retrieved from the mirror BSDF.
 #[derive(Clone, Debug, PartialEq, Copy)]
 pub struct Mirror<N: Real + Copy + Debug + PartialEq> {
     pub albedo: Vector3<N>,
 }
-
 
 impl<N: FromPrimitive + Real> BSDF<N> for Mirror<N> {
     /// Implements the scatter function for a mirror surface. This mirror implementation takes
@@ -20,10 +19,13 @@ impl<N: FromPrimitive + Real> BSDF<N> for Mirror<N> {
     /// reflects the incoming ray about the normal of the incoming ray.
     fn scatter(&self, in_ray: &Ray<N>, hit_record: &HitRecord<N>) -> BSDFRecord<N> {
         let reflection = mirror(&in_ray.direction, &hit_record.normal);
-        let scatter_out = Ray{ direction: reflection, origin: hit_record.p};
+        let scatter_out = Ray {
+            direction: reflection,
+            origin: hit_record.p,
+        };
 
         let mut bsdf_record: BSDFRecord<N> = BSDFRecord {
-            out_scattered: scatter_out, 
+            out_scattered: scatter_out,
             attenuated: self.albedo,
         };
 
