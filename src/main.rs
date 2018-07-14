@@ -105,8 +105,8 @@ fn color(r: &Ray3f, primitives: &HitList<f32>, depth: u32, depth_limit: u32) -> 
 }
 
 fn main() -> std::io::Result<()> {
-    let nx = 1920; // width
-    let ny = 1080; // height
+    let nx = 200; // width
+    let ny = 100; // height
     let ns = 200; // antialiasing factor
 
     // initialize scene objects
@@ -167,7 +167,7 @@ fn main() -> std::io::Result<()> {
     // flatten the image buffer so it can be saved using the image crate
     let image_buffer: Vec<u8> = buffer.iter().flat_map(|n| n.iter().cloned()).collect();
     image::save_buffer(
-        "render.png",
+        "renders/render.png",
         &image_buffer,
         nx as u32,
         ny as u32,
