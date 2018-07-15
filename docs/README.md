@@ -47,12 +47,25 @@ I'm also using [nalgebra](http://nalgebra.org) as my linear algebra library.
 
 To run tests:
 
-    cargo test
+```sh
+cargo test
+```
 
 To build:
 
-    RUSTFLAGS="-C target-cpu=native" cargo build --release
+```sh
+RUSTFLAGS="-C target-cpu=native" cargo build --release
+```
 
 To run:
 
-    RUSTFLAGS="-C target-cpu=native" cargo run --release
+```sh
+RUSTFLAGS="-C target-cpu=native" cargo run --release
+```
+
+In order for the renderer to be able to output images, you will need to
+create the output folder, otherwise it will panic and fail.
+
+```sh
+mkdir renders
+```
