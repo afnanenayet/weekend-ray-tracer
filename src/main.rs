@@ -5,14 +5,13 @@ extern crate rand;
 extern crate rayon;
 extern crate trtlib;
 
-use image::{ImageBuffer, Rgb, RgbImage};
 use na::Vector3;
-use pbr::ProgressBar;
 use rand::{thread_rng, Rng};
 use rayon::iter::IntoParallelIterator;
 use rayon::prelude::*;
 use std::default::Default;
-use std::fs::File;
+use std::fs;
+use std::path::Path;
 use std::time::Instant;
 use std::vec::Vec;
 use trtlib::camera::pinhole::Pinhole;
@@ -23,6 +22,14 @@ use trtlib::material::mirror::Mirror;
 use trtlib::material::BSDF;
 use trtlib::primitives::sphere::Sphere;
 use trtlib::typedefs::*;
+
+/// Create the render/output directory if it doesn't already exist. If it does, do nothing.
+fn create_render_dir(dir: &str) -> std::io::Result<()> {
+    if !Path::new(dir).exists() {
+        fs::create_dir(dir)?
+    }
+    Ok(())
+}
 
 /// Constructs the objects in the scene and returns a vector populated by those objects.
 fn scene() -> HitList<f32> {
@@ -110,7 +117,7 @@ fn color(r: &Ray3f, primitives: &HitList<f32>, depth: u32, depth_limit: u32) -> 
 fn main() -> std::io::Result<()> {
     let nx = 200; // width
     let ny = 100; // height
-    let ns = 100; // antialiasing factor
+    let ns = 200; // antialiasing factor
 
     // initialize scene objects
     let primitives = scene();
@@ -120,7 +127,7 @@ fn main() -> std::io::Result<()> {
     println!("Rendering scene...");
 
     // time how long it takes to render the scene
-    let mut buffer: Vec<Rgb<u16>> = Vec::with_capacity(nx * ny);
+    let mut buffer: Vec<[u8; 3]> = Vec::with_capacity(nx * ny);
 
     // want to time how long it takes to render, now how long it takes to allocate the memory
     let start_time = Instant::now();
@@ -151,24 +158,34 @@ fn main() -> std::io::Result<()> {
             let ir = (col.x * 255.99) as u16;
             let ig = (col.y * 255.99) as u16;
             let ib = (col.z * 255.99) as u16;
-            // let mut file_str = format!("{} {} {}\n", ir, ig, ib);
-            let mut pixel = Rgb { data: [ir, ig, ib] };
 
             // write to file with some sanity checking
             if ir > 256 || ig > 256 || ib > 256 {
                 println!("ERROR: invalid color value ({}, {}, {})", ir, ig, ib);
-                pixel.data = [1, 1, 1]
+                return [1 as u8; 3];
             }
-            return pixel;
+            return [ir as u8, ig as u8, ib as u8];
         })
         .collect_into_vec(&mut buffer);
 
     let elapsed = start_time.elapsed().as_secs();
-
     println!("Scene took {} seconds to render to buffer\n", elapsed);
-    // TODO figure out how to save this buffer in a way that the image crate will consume
-    println!("Writing buffer to file");
 
-    let png: RgbImage = ImageBuffer::from_vec(nx as u32, ny as u32, buffer).unwrap();
+    println!("Writing buffer to file");
+    let start_time = Instant::now();
+
+    // flatten the image buffer so it can be saved using the image crate
+    // Note that this is a performance issue as it doubles the memory necessary
+    let image_buffer: Vec<u8> = buffer.iter().flat_map(|n| n.iter().cloned()).collect();
+    create_render_dir("renders")?;
+    image::save_buffer(
+        "renders/render.png",
+        &image_buffer,
+        nx as u32,
+        ny as u32,
+        image::RGB(8),
+    )?;
+    let elapsed = start_time.elapsed().as_secs();
+    println!("File took {} seconds to write to disk\n", elapsed);
     Ok(())
 }
