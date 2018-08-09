@@ -10,6 +10,8 @@ use rand::{thread_rng, Rng};
 use rayon::iter::IntoParallelIterator;
 use rayon::prelude::*;
 use std::default::Default;
+use std::fs;
+use std::path::Path;
 use std::time::Instant;
 use std::vec::Vec;
 use trtlib::camera::pinhole::Pinhole;
@@ -20,6 +22,14 @@ use trtlib::material::mirror::Mirror;
 use trtlib::material::BSDF;
 use trtlib::primitives::sphere::Sphere;
 use trtlib::typedefs::*;
+
+/// Create the render/output directory if it doesn't already exist. If it does, do nothing.
+fn create_render_dir(dir: &str) -> std::io::Result<()> {
+    if !Path::new(dir).exists() {
+        fs::create_dir(dir)?
+    }
+    Ok(())
+}
 
 /// Constructs the objects in the scene and returns a vector populated by those objects.
 fn scene() -> HitList<f32> {
@@ -165,7 +175,9 @@ fn main() -> std::io::Result<()> {
     let start_time = Instant::now();
 
     // flatten the image buffer so it can be saved using the image crate
+    // Note that this is a performance issue as it doubles the memory necessary
     let image_buffer: Vec<u8> = buffer.iter().flat_map(|n| n.iter().cloned()).collect();
+    create_render_dir("renders")?;
     image::save_buffer(
         "renders/render.png",
         &image_buffer,
