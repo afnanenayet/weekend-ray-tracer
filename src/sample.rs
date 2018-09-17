@@ -31,5 +31,5 @@ pub fn unit_sphere<N: Real + FromPrimitive>() -> Vector3<N> {
             N::from_f32(rng.gen::<f32>()).unwrap(),
         ).map(|e| e * scaling_factor) - unit;
     }
-    return v;
+    v
 }

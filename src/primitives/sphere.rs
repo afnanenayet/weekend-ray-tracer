@@ -27,11 +27,7 @@ impl<N: Real + FromPrimitive> Hittable for Sphere<N> {
         if discriminant >= N::from_f32(0.0).unwrap() {
             let p = ray.point_at_param(t);
             let normal = (p - self.center).map(|n| n / self.radius);
-            return Some(HitRecord {
-                t: t,
-                p: p,
-                normal: normal,
-            });
+            return Some(HitRecord { t, p, normal });
         }
         None
     }

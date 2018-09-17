@@ -98,10 +98,10 @@ fn color(r: &Ray3f, primitives: &HitList<f32>, depth: u32, depth_limit: u32) -> 
                 let bsdf_record = bsdf.scatter(r, &hr);
                 let attenuation: Vector3f = bsdf_record.attenuated;
                 let scattered_ray: Ray3f = bsdf_record.out_scattered;
-                return color(&scattered_ray, primitives, depth + 1, depth_limit)
-                    .component_mul(&attenuation);
+                color(&scattered_ray, primitives, depth + 1, depth_limit)
+                    .component_mul(&attenuation)
             } else {
-                return Vector3f::new(0.0, 0.0, 0.0);
+                Vector3f::new(0.0, 0.0, 0.0)
             }
         }
         None => {
@@ -164,7 +164,7 @@ fn main() -> std::io::Result<()> {
                 println!("ERROR: invalid color value ({}, {}, {})", ir, ig, ib);
                 return [1 as u8; 3];
             }
-            return [ir as u8, ig as u8, ib as u8];
+            [ir as u8, ig as u8, ib as u8]
         })
         .collect_into_vec(&mut buffer);
 
