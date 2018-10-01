@@ -16,10 +16,16 @@ doc = false
 [dependencies]
 image = "0.20.0"
 nalgebra = "0.16.4"
+nalgebra-lapack = "0.8.0"
 pbr = "1.0.1"
 rand = "0.5.5"
 num = "0.2.0"
 rayon = "1.0.2"
+
+[dependencies.nalgebra_lapack]
+version = "0.8.0"
+default-features = false
+features = [ "Accelerate" ]
 
 [profile.release]
 opt-level = 3
