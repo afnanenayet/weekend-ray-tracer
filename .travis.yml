@@ -1,8 +1,16 @@
 language: rust
 rust:
-  - stable
-  - beta
-  - nightly
+- stable
+- beta
+- nightly
 matrix:
   allow_failures:
-    - rust: nightly
+  - rust: nightly
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: ELW82VOddDOyGCicU0sP7tosPWNwDCwtRD0ezHPILWHyGXNFGpOolLND3pM1HHkzauZKgAoTdvjYG1x/Yqmr7rXooSaDK4Xzc9eIWOEvwQi9L3plPlhlBQUrojtZd55GKj+qCZEgQhAxS+MW5nutbaxe4pN9ClExDtdz46ce9Bb8p/wmRtf1DcB/0RbCXLCXXnCejg8t8iNpqajpepTnceDHUrueMp8M/dKq827LgG97gqL4tOxGEh6ZLrXm8bXzVCaQhi19HejuMTCChizR13CsunA+MxrK2VE+RdFyvyDzVasFqu6Qp6p/uSxveiWaz23xPlpLwuoKQpWYCmAAwZvInU3jRHIzLs67Jutrmop2mgR5zqM1EO9OmEiT2wbSr+FZUHzMFwGYVfCN/OfiBiBvs3xfRRmlDt3eLD1vqavwzrsDEufd7XJAvyaLoZUF2mXKJx7pUx+PQaDkYWWjQrfCxJg/6mIHZFaQPtsxFa2APTKDTr0vaEFacxD81UvxoibHqxjOp6z8jo9V4/p90WYXIaq9qXcXFP2CkGL9s37yOETxG4W4tzxlN5lgHM2ZKvLrpdS54Z5l6/F4oPgmu6BYfzq/oilSy+sUDksOgcaV5/a0wsctcLLDzUo/tPXWoruepVvsVKFdOuOatbIeP2QBj+hg9VmTsiKmXnngp1w=
+  file: target/release/trt
+  on:
+    repo: afnanenayet/weekend-ray-tracer
