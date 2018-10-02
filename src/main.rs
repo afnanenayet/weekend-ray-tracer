@@ -1,11 +1,12 @@
 extern crate image;
 extern crate nalgebra as na;
-extern crate pbr;
+extern crate indicatif;
 extern crate rand;
 extern crate rayon;
 extern crate trtlib;
 
 use na::Vector3;
+use indicatif::{ProgressBar, ProgressStyle};
 use rand::{thread_rng, Rng};
 use rayon::iter::IntoParallelIterator;
 use rayon::prelude::*;
@@ -13,6 +14,7 @@ use std::default::Default;
 use std::fs;
 use std::path::Path;
 use std::time::Instant;
+use std::borrow::Cow;
 use std::vec::Vec;
 use trtlib::camera::pinhole::Pinhole;
 use trtlib::camera::Camera;
@@ -114,27 +116,38 @@ fn color(r: &Ray3f, primitives: &HitList<f32>, depth: u32, depth_limit: u32) -> 
     }
 }
 
+/// Creates a progress bar with the style we want for this app
+fn create_progress_bar(size: u64) -> ProgressBar {
+    let style = ProgressStyle::default_bar()
+        .progress_chars("=>-")
+        .template("{elapsed_precise} / {eta_precise} (ETA) [{wide_bar}] {percent}%");
+    let pb = ProgressBar::new(size);
+    pb.set_style(style);
+    pb
+}
+
 fn main() -> std::io::Result<()> {
-    let nx = 200; // width
-    let ny = 100; // height
+    let nx = 1920; // width
+    let ny = 1080; // height
     let ns = 200; // antialiasing factor
 
     // initialize scene objects
     let primitives = scene();
     let camera: Pinhole<f32> = Default::default();
+
+    // recursion limit
     let rec_lim = 50;
 
     println!("Rendering scene...");
-
-    // time how long it takes to render the scene
     let mut buffer: Vec<[u8; 3]> = Vec::with_capacity(nx * ny);
 
-    // want to time how long it takes to render, now how long it takes to allocate the memory
-    let start_time = Instant::now();
+    // initialize progress bar so we can track progress from the CLI
+    let pb = create_progress_bar((nx * ny) as u64);
 
     (0..(nx * ny))
         .into_par_iter()
         .map(|idx| {
+            pb.inc(1);
             let j = ny - (idx / nx);
             let i = idx % nx;
             let mut rng = thread_rng();
@@ -165,11 +178,8 @@ fn main() -> std::io::Result<()> {
                 return [1 as u8; 3];
             }
             [ir as u8, ig as u8, ib as u8]
-        })
-        .collect_into_vec(&mut buffer);
-
-    let elapsed = start_time.elapsed().as_secs();
-    println!("Scene took {} seconds to render to buffer\n", elapsed);
+        }).collect_into_vec(&mut buffer);
+    pb.finish();
 
     println!("Writing buffer to file");
     let start_time = Instant::now();
@@ -184,7 +194,7 @@ fn main() -> std::io::Result<()> {
         nx as u32,
         ny as u32,
         image::RGB(8),
-    )?;
+        )?;
     let elapsed = start_time.elapsed().as_secs();
     println!("File took {} seconds to write to disk\n", elapsed);
     Ok(())
