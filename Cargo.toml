@@ -1,6 +1,6 @@
 [package]
 name = "trt"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["Afnan Enayet <afnan.enayet@gmail.com>"]
 
 [lib]
