@@ -14,7 +14,6 @@ use std::default::Default;
 use std::fs;
 use std::path::Path;
 use std::time::Instant;
-use std::borrow::Cow;
 use std::vec::Vec;
 use trtlib::camera::pinhole::Pinhole;
 use trtlib::camera::Camera;
@@ -119,7 +118,7 @@ fn color(r: &Ray3f, primitives: &HitList<f32>, depth: u32, depth_limit: u32) -> 
 /// Creates a progress bar with the style we want for this app
 fn create_progress_bar(size: u64) -> ProgressBar {
     let style = ProgressStyle::default_bar()
-        .progress_chars("=>-")
+        .progress_chars("=> ")
         .template("{elapsed_precise} / {eta_precise} (ETA) [{wide_bar}] {percent}%");
     let pb = ProgressBar::new(size);
     pb.set_style(style);
