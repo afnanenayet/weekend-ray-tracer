@@ -1,7 +1,7 @@
 [package]
 name = "trt"
-version = "0.4.0"
-authors = ["Afnan Enayet <afnan.enayet@gmail.com>"]
+version = "0.4.1"
+authors = ["Afnan Enayet <afnan@afnan.io>"]
 
 [lib]
 name = "trtlib"
@@ -20,11 +20,12 @@ indicatif = "0.9.0"
 rand = "0.5.5"
 num = "0.2.0"
 rayon = "1.0.2"
+clap = {version = "2.32.0", features = ["yaml", "suggestions", "color"]}
 
 [dependencies.nalgebra-lapack]
 version = "0.8.0"
 default-features = false
-# features = [ "Accelerate" ]
+# features = ["accelerate"]
 
 [profile.release]
 opt-level = 3

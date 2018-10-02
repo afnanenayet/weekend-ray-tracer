@@ -1,12 +1,16 @@
 extern crate image;
-extern crate nalgebra as na;
 extern crate indicatif;
+extern crate nalgebra as na;
 extern crate rand;
 extern crate rayon;
 extern crate trtlib;
 
-use na::Vector3;
+#[macro_use]
+extern crate clap;
+
+use clap::App;
 use indicatif::{ProgressBar, ProgressStyle};
+use na::Vector3;
 use rand::{thread_rng, Rng};
 use rayon::iter::IntoParallelIterator;
 use rayon::prelude::*;
@@ -125,11 +129,15 @@ fn create_progress_bar(size: u64) -> ProgressBar {
     pb
 }
 
-fn main() -> std::io::Result<()> {
-    let nx = 1920; // width
-    let ny = 1080; // height
-    let ns = 200; // antialiasing factor
-
+/// Render the scene, given a configuration. This method takes care of the bulk of the core code
+/// to generate the scene as well as parallelize the render.
+///
+/// Params:
+///     - nx: the width of the image
+///     - ny: the height of hte image
+///     - ns: the antialiasing factor for each pixel
+///     - out: the relative output filename for the rendered picture
+fn render_scene(nx: usize, ny: usize, ns: usize, out: &str) -> std::io::Result<()> {
     // initialize scene objects
     let primitives = scene();
     let camera: Pinhole<f32> = Default::default();
@@ -187,14 +195,24 @@ fn main() -> std::io::Result<()> {
     // Note that this is a performance issue as it doubles the memory necessary
     let image_buffer: Vec<u8> = buffer.iter().flat_map(|n| n.iter().cloned()).collect();
     create_render_dir("renders")?;
-    image::save_buffer(
-        "renders/render.png",
-        &image_buffer,
-        nx as u32,
-        ny as u32,
-        image::RGB(8),
-        )?;
+    image::save_buffer(out, &image_buffer, nx as u32, ny as u32, image::RGB(8))?;
     let elapsed = start_time.elapsed().as_secs();
     println!("File took {} seconds to write to disk\n", elapsed);
+    Ok(())
+}
+
+fn main() -> std::io::Result<()> {
+    // load the args from a yaml file
+    let yaml = load_yaml!("cli.yaml");
+    let matches = App::from_yaml(yaml).get_matches();
+
+    // check for args or get default values
+    // We'll use relatively light default values
+    let width = value_t!(matches.value_of("width"), usize).unwrap_or(200);
+    let height = value_t!(matches.value_of("height"), usize).unwrap_or(100);
+    let aa = value_t!(matches.value_of("aa"), usize).unwrap_or(50);
+    let output_fname: &str = matches.value_of("out").unwrap_or("renders/render.png");
+
+    render_scene(width, height, aa, output_fname)?;
     Ok(())
 }

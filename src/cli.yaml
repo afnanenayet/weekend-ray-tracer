@@ -1,0 +1,28 @@
+name: trt
+version: 0.4.1
+about: A physically based ray tracer.
+args:
+  - width:
+      short: w
+      long: width
+      value_name: width
+      help: The desired output width of the render
+      takes_value: true
+  - height:
+      short: h
+      long: height
+      value_name: height
+      help: The desired output height of the render
+      takes_value: true
+  - aa:
+      short: a
+      long: aa
+      value_name: aa
+      help: The antialiasing factor for each pixel
+      takes_value: true
+  - out:
+      short: o
+      long: out
+      value_name: output_file
+      help: The relative path to the output file
+      takes_value: true
