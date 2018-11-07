@@ -1,7 +1,7 @@
 /// Convenience type aliases for commonly used vector types. Note that all types are
 /// signed.
-use na::Vector3;
-use ray::Ray;
+use crate::na::Vector3;
+use crate::ray::Ray;
 
 /// A three dimensional integer vector
 pub type Vector3d = Vector3<i32>;

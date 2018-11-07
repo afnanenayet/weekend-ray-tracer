@@ -1,5 +1,5 @@
 /// The ray class contains an origin and a direction. Both of these are 3D vectors.
-use na::{Real, Vector3};
+use crate::na::{Real, Vector3};
 
 #[derive(Clone, Debug, PartialEq, Copy)]
 pub struct Ray<N: Real> {

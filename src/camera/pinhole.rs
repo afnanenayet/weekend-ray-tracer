@@ -2,10 +2,10 @@
 //! to generically swap-in different types of cameras.
 
 use super::Camera;
-use na::{Real, Vector3};
-use ray::Ray;
+use crate::na::{Real, Vector3};
+use crate::ray::Ray;
 use std::default::Default;
-use typedefs::Vector3f;
+use crate::typedefs::Vector3f;
 
 /// stores data for camera abstraction
 #[derive(Clone, Debug, PartialEq, Copy)]

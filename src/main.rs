@@ -10,7 +10,7 @@ extern crate clap;
 
 use clap::App;
 use indicatif::{ProgressBar, ProgressStyle};
-use na::Vector3;
+use crate::na::Vector3;
 use rand::{thread_rng, Rng};
 use rayon::iter::IntoParallelIterator;
 use rayon::prelude::*;

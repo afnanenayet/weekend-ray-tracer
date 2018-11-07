@@ -1,6 +1,6 @@
-use hittable::HitRecord;
-use na::{Real, Vector3};
-use ray::Ray;
+use crate::hittable::HitRecord;
+use crate::na::{Real, Vector3};
+use crate::ray::Ray;
 
 pub mod diffuse;
 pub mod mirror;

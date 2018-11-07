@@ -1,9 +1,9 @@
-use common::mirror;
-use hittable::HitRecord;
-use material::{BSDFRecord, BSDF};
-use na::{self, Real, Vector3};
+use crate::common::mirror;
+use crate::hittable::HitRecord;
+use crate::material::{BSDFRecord, BSDF};
+use crate::na::{self, Real, Vector3};
 use num::FromPrimitive;
-use ray::Ray;
+use crate::ray::Ray;
 use std::fmt::Debug;
 
 /// Contains the parameters for a mirror struct. The albedo determines the tint of the color

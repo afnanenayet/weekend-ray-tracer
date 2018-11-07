@@ -1,6 +1,6 @@
-use material::BSDF;
-use na::{Real, Vector3};
-use ray::Ray;
+use crate::material::BSDF;
+use crate::na::{Real, Vector3};
+use crate::ray::Ray;
 
 /// A struct that is returned by a hit query that indicates whether some object has been hit by a
 /// ray, and relevant location information if it has.

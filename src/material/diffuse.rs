@@ -1,9 +1,9 @@
 use super::{BSDFRecord, BSDF};
-use hittable::HitRecord;
-use na::{Real, Vector3};
+use crate::hittable::HitRecord;
+use crate::na::{Real, Vector3};
 use num::FromPrimitive;
-use ray::Ray;
-use sample::unit_sphere;
+use crate::ray::Ray;
+use crate::sample::unit_sphere;
 use std::fmt::Debug;
 
 /// Holds the properties for a diffuse BSDF

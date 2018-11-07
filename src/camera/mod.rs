@@ -1,8 +1,8 @@
 //! The camera module provides a generic camera trait that can be implemented
 //! to provide different camera types.
 
-use na::Real;
-use ray::Ray;
+use crate::na::Real;
+use crate::ray::Ray;
 
 pub mod pinhole;
 

@@ -1,7 +1,7 @@
-use hittable::{HitRecord, Hittable};
-use na::{self, Real, Vector3};
+use crate::hittable::{HitRecord, Hittable};
+use crate::na::{self, Real, Vector3};
 use num::FromPrimitive;
-use ray::Ray;
+use crate::ray::Ray;
 
 /// Contains the relevant information for a sphere primitive
 #[derive(Clone, Debug, Copy)]
