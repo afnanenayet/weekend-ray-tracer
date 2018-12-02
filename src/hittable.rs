@@ -40,7 +40,7 @@ impl<N: Real + Sync> HitList<N> {
         t_max: Option<N>,
     ) -> Option<(HitRecord<N>, &Box<BSDF<N> + Sync>)> {
         let mut closest_hit: Option<HitRecord<N>> = None;
-        let mut mat: &Box<BSDF<N> + Sync> = &self.list[0].1;
+        let mut mat = &self.list[0].1;
 
         // use iter instead of into_iter because we don't actually need to manipulate
         // any of the primitives, and we can avoid a compiler error
@@ -58,8 +58,8 @@ impl<N: Real + Sync> HitList<N> {
         }
 
         if closest_hit.is_some() {
-            return Some((closest_hit.unwrap(), mat));
+            return Some((closest_hit.unwrap(), &mat));
         }
-        return None;
+        None
     }
 }

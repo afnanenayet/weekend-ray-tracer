@@ -114,7 +114,7 @@ fn color(r: &Ray3f, primitives: &HitList<f32>, depth: u32, depth_limit: u32) -> 
             let t = 0.5 * (unit_dir.y + 1.0);
 
             // linearly interpolate a color based on the angle of the ray
-            return (1.0 - t) * Vector3::new(1.0, 1.0, 1.0) + t * Vector3::new(0.5, 0.7, 1.0);
+            (1.0 - t) * Vector3::new(1.0, 1.0, 1.0) + t * Vector3::new(0.5, 0.7, 1.0)
         }
     }
 }
