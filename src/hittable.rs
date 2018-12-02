@@ -23,11 +23,20 @@ pub trait Hittable {
     fn hit(&self, ray: &Ray<Self::NumType>) -> Option<HitRecord<Self::NumType>>;
 }
 
-/// Essentially a wrapper for a vector of Hittable types. It provides a convenience function to
+/// A parallel reference to a hittable object
+type HittableRef<N> = Box<Hittable<NumType = N> + Sync>;
+
+/// An owned reference to a BSDF trait object that is also `Sync`
+pub type BSDFRef<N> = Box<BSDF<N> + Sync>;
+
+/// A vector of geometry <-> BSDF ref tuples
+pub type ObjVec<N> = Vec<(HittableRef<N>, BSDFRef<N>)>;
+
+/// A wrapper for a vector of Hittable types. It provides a convenience function to
 /// detect whether any geometry has been hit, and also makes it easy to add primitives to the
 /// list.
 pub struct HitList<N: Sync> {
-    pub list: Vec<(Box<Hittable<NumType = N> + Sync>, Box<BSDF<N> + Sync>)>,
+    pub list: ObjVec<N>,
 }
 
 impl<N: Real + Sync> HitList<N> {
@@ -38,12 +47,11 @@ impl<N: Real + Sync> HitList<N> {
         ray: &Ray<N>,
         t_min: Option<N>,
         t_max: Option<N>,
-    ) -> Option<(HitRecord<N>, &Box<BSDF<N> + Sync>)> {
+    ) -> Option<(HitRecord<N>, &BSDFRef<N>)> {
         let mut closest_hit: Option<HitRecord<N>> = None;
         let mut mat = &self.list[0].1;
 
-        // use iter instead of into_iter because we don't actually need to manipulate
-        // any of the primitives, and we can avoid a compiler error
+        // Iterate through
         for pair in self.list.iter() {
             let record = pair.0.hit(ray);
 

@@ -9,8 +9,8 @@ extern crate trtlib;
 extern crate clap;
 
 use clap::App;
-use indicatif::{ProgressBar, ProgressStyle};
 use crate::na::Vector3;
+use indicatif::{ProgressBar, ProgressStyle};
 use rand::{thread_rng, Rng};
 use rayon::iter::IntoParallelIterator;
 use rayon::prelude::*;
@@ -21,10 +21,9 @@ use std::time::Instant;
 use std::vec::Vec;
 use trtlib::camera::pinhole::Pinhole;
 use trtlib::camera::Camera;
-use trtlib::hittable::{HitList, HitRecord, Hittable};
+use trtlib::hittable::{HitList, HitRecord, ObjVec, BSDFRef};
 use trtlib::material::diffuse::Diffuse;
 use trtlib::material::mirror::Mirror;
-use trtlib::material::BSDF;
 use trtlib::primitives::sphere::Sphere;
 use trtlib::typedefs::*;
 
@@ -38,7 +37,7 @@ fn create_render_dir(dir: &str) -> std::io::Result<()> {
 
 /// Constructs the objects in the scene and returns a vector populated by those objects.
 fn scene() -> HitList<f32> {
-    let mut v: Vec<(Box<Hittable<NumType = f32> + Sync>, Box<BSDF<f32> + Sync>)> = Vec::new();
+    let mut v: ObjVec<f32> = Vec::new();
 
     // specify objects here
     v.push((
@@ -77,8 +76,6 @@ fn scene() -> HitList<f32> {
             albedo: Vector3::new(0.8, 0.8, 0.8),
         }),
     ));
-
-    // Return list with the HitList wrapper type
     HitList { list: v }
 }
 
@@ -90,7 +87,7 @@ fn scene() -> HitList<f32> {
 /// `depth` is the recursion depth for global illumination
 /// `depth_limit` is the recursion depth limit for global illumination
 fn color(r: &Ray3f, primitives: &HitList<f32>, depth: u32, depth_limit: u32) -> Color3f {
-    let hit_record: Option<(HitRecord<f32>, &Box<BSDF<f32> + Sync>)> =
+    let hit_record: Option<(HitRecord<f32>, &BSDFRef<f32>)> =
         primitives.any_hit(r, Some(0.001), None);
 
     match hit_record {
@@ -181,7 +178,10 @@ fn render_scene(nx: usize, ny: usize, ns: usize, out: &str) -> std::io::Result<(
 
             // write to file with some sanity checking
             if ir > 256 || ig > 256 || ib > 256 {
-                println!("ERROR: invalid color value ({}, {}, {})", ir, ig, ib);
+                println!(
+                    "ERROR: generated invalid color value ({}, {}, {})",
+                    ir, ig, ib
+                );
                 return [1 as u8; 3];
             }
             [ir as u8, ig as u8, ib as u8]
@@ -206,8 +206,8 @@ fn main() -> std::io::Result<()> {
     let yaml = load_yaml!("cli.yaml");
     let matches = App::from_yaml(yaml).get_matches();
 
-    // check for args or get default values
-    // We'll use relatively light default values
+    // Check for args or get default values
+    // We'll use relatively cheap default values
     let width = value_t!(matches.value_of("width"), usize).unwrap_or(200);
     let height = value_t!(matches.value_of("height"), usize).unwrap_or(100);
     let aa = value_t!(matches.value_of("aa"), usize).unwrap_or(50);
