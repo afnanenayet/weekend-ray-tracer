@@ -4,8 +4,8 @@
 use super::Camera;
 use crate::na::{Real, Vector3};
 use crate::ray::Ray;
-use std::default::Default;
 use crate::typedefs::Vector3f;
+use std::default::Default;
 
 /// stores data for camera abstraction
 #[derive(Clone, Debug, PartialEq, Copy)]
@@ -23,7 +23,8 @@ impl<N: Real> Camera<N> for Pinhole<N> {
             origin: self.origin,
             direction: self.lower_left
                 + self.horizontal.map(|e| e * u)
-                + self.vertical.map(|e| e * v) - self.origin,
+                + self.vertical.map(|e| e * v)
+                - self.origin,
         }
     }
 }

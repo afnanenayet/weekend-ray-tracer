@@ -24,10 +24,10 @@ pub trait Hittable {
 }
 
 /// A parallel reference to a hittable object
-type HittableRef<N> = Box<Hittable<NumType = N> + Sync>;
+type HittableRef<N> = Box<dyn Hittable<NumType = N> + Sync>;
 
 /// An owned reference to a BSDF trait object that is also `Sync`
-pub type BSDFRef<N> = Box<BSDF<N> + Sync>;
+pub type BSDFRef<N> = Box<dyn BSDF<N> + Sync>;
 
 /// A vector of geometry <-> BSDF ref tuples
 pub type ObjVec<N> = Vec<(HittableRef<N>, BSDFRef<N>)>;

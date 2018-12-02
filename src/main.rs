@@ -5,11 +5,8 @@ extern crate rand;
 extern crate rayon;
 extern crate trtlib;
 
-#[macro_use]
-extern crate clap;
-
-use clap::App;
 use crate::na::Vector3;
+use clap::{load_yaml, value_t, App};
 use indicatif::{ProgressBar, ProgressStyle};
 use rand::{thread_rng, Rng};
 use rayon::iter::IntoParallelIterator;
@@ -21,7 +18,7 @@ use std::time::Instant;
 use std::vec::Vec;
 use trtlib::camera::pinhole::Pinhole;
 use trtlib::camera::Camera;
-use trtlib::hittable::{HitList, HitRecord, ObjVec, BSDFRef};
+use trtlib::hittable::{BSDFRef, HitList, HitRecord, ObjVec};
 use trtlib::material::diffuse::Diffuse;
 use trtlib::material::mirror::Mirror;
 use trtlib::primitives::sphere::Sphere;
@@ -185,7 +182,8 @@ fn render_scene(nx: usize, ny: usize, ns: usize, out: &str) -> std::io::Result<(
                 return [1 as u8; 3];
             }
             [ir as u8, ig as u8, ib as u8]
-        }).collect_into_vec(&mut buffer);
+        })
+        .collect_into_vec(&mut buffer);
     pb.finish();
 
     println!("Writing buffer to file");
