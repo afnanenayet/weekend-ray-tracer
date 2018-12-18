@@ -1,10 +1,11 @@
 use crate::material::BSDF;
 use crate::na::{Real, Vector3};
 use crate::ray::Ray;
+use serde_derive::{Deserialize, Serialize};
 
 /// A struct that is returned by a hit query that indicates whether some object has been hit by a
 /// ray, and relevant location information if it has.
-#[derive(Clone, Debug, PartialEq, Copy)]
+#[derive(Clone, Debug, PartialEq, Copy, Serialize, Deserialize)]
 pub struct HitRecord<N: Real + Sync> {
     pub t: N,
     pub p: Vector3<N>,
@@ -29,7 +30,7 @@ type HittableRef<N> = Box<dyn Hittable<NumType = N> + Sync>;
 /// An owned reference to a BSDF trait object that is also `Sync`
 pub type BSDFRef<N> = Box<dyn BSDF<N> + Sync>;
 
-/// A vector of geometry <-> BSDF ref tuples
+/// A vector of geometry, BSDF ref tuples
 pub type ObjVec<N> = Vec<(HittableRef<N>, BSDFRef<N>)>;
 
 /// A wrapper for a vector of Hittable types. It provides a convenience function to

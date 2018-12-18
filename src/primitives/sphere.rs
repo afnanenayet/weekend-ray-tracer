@@ -2,9 +2,10 @@ use crate::hittable::{HitRecord, Hittable};
 use crate::na::{self, Real, Vector3};
 use crate::ray::Ray;
 use num::FromPrimitive;
+use serde_derive::{Deserialize, Serialize};
 
 /// Contains the relevant information for a sphere primitive
-#[derive(Clone, Debug, Copy)]
+#[derive(Clone, Debug, Copy, Serialize, Deserialize)]
 pub struct Sphere<N: Real> {
     pub radius: N,
     pub center: Vector3<N>,

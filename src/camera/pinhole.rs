@@ -5,10 +5,11 @@ use super::Camera;
 use crate::na::{Real, Vector3};
 use crate::ray::Ray;
 use crate::typedefs::Vector3f;
+use serde_derive::{Deserialize, Serialize};
 use std::default::Default;
 
 /// stores data for camera abstraction
-#[derive(Clone, Debug, PartialEq, Copy)]
+#[derive(Clone, Debug, PartialEq, Copy, Serialize, Deserialize)]
 pub struct Pinhole<N: Real> {
     pub origin: Vector3<N>,
     pub horizontal: Vector3<N>,

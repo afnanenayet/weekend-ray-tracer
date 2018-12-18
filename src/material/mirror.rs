@@ -4,11 +4,12 @@ use crate::material::{BSDFRecord, BSDF};
 use crate::na::{self, Real, Vector3};
 use crate::ray::Ray;
 use num::FromPrimitive;
+use serde_derive::{Deserialize, Serialize};
 use std::fmt::Debug;
 
 /// Contains the parameters for a mirror struct. The albedo determines the tint of the color
 /// retrieved from the mirror BSDF.
-#[derive(Clone, Debug, PartialEq, Copy)]
+#[derive(Clone, Debug, PartialEq, Copy, Serialize, Deserialize)]
 pub struct Mirror<N: Real + Copy + Debug + PartialEq> {
     pub albedo: Vector3<N>,
 }
