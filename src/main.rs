@@ -211,6 +211,5 @@ fn main() -> std::io::Result<()> {
     let aa = value_t!(matches.value_of("aa"), usize).unwrap_or(50);
     let output_fname: &str = matches.value_of("out").unwrap_or("renders/render.png");
 
-    render_scene(width, height, aa, output_fname)?;
-    Ok(())
+    render_scene(width, height, aa, output_fname)
 }
