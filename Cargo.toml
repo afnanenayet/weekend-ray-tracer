@@ -29,5 +29,6 @@ default-features = false
 # features = ["accelerate"]
 
 [profile.release]
+lto = true
 opt-level = 3
 debug = false
