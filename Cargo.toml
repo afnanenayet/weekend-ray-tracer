@@ -18,7 +18,7 @@ doc = false
 image = "0.20.1"
 nalgebra = "0.16.13"
 indicatif = "0.11.0"
-rand = "0.6.1"
+rand = "0.6.3"
 num = "0.2.0"
 rayon = "1.0.3"
 clap = {version = "2.32.0", features = ["yaml", "suggestions", "color"]}
