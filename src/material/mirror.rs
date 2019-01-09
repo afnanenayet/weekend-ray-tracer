@@ -1,7 +1,7 @@
 use crate::common::mirror;
 use crate::hittable::HitRecord;
 use crate::material::{BSDFRecord, BSDF};
-use crate::na::{self, Real, Vector3};
+use crate::na::{self, Matrix, Real, Vector3};
 use crate::ray::Ray;
 use num::FromPrimitive;
 use serde_derive::{Deserialize, Serialize};
@@ -30,7 +30,7 @@ impl<N: FromPrimitive + Real> BSDF<N> for Mirror<N> {
             attenuated: self.albedo,
         };
 
-        if na::dot(&scatter_out.direction, &reflection) <= N::from_u32(0).unwrap() {
+        if Matrix::dot(&scatter_out.direction, &reflection) <= N::from_u32(0).unwrap() {
             bsdf_record.attenuated = Vector3::new(
                 N::from_u32(0).unwrap(),
                 N::from_u32(0).unwrap(),
