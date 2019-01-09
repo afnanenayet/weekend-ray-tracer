@@ -1,7 +1,7 @@
 //! This module contains common utility functions to be shared across modules. These are functions
 //! that don't fit in anywhere else, but have a scope that extends beyond just one module.
 
-use crate::na::{self, Matrix, Real, Vector3};
+use crate::na::{Matrix, Real, Vector3};
 use num::FromPrimitive;
 
 /// Mirror a vector about a unit direction. `vector` is the incoming vector, and `normal` is the
