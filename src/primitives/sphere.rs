@@ -1,5 +1,5 @@
 use crate::hittable::{HitRecord, Hittable};
-use crate::na::{self, Real, Vector3};
+use crate::na::{Matrix, Real, Vector3};
 use crate::ray::Ray;
 use num::FromPrimitive;
 
@@ -18,9 +18,9 @@ impl<N: Real + FromPrimitive> Hittable for Sphere<N> {
 
     fn hit(&self, ray: &Ray<Self::NumType>) -> Option<HitRecord<Self::NumType>> {
         let oc = ray.origin - self.center;
-        let a = na::norm_squared(&ray.direction);
-        let b = na::dot(&oc, &ray.direction);
-        let c = na::norm_squared(&oc) - na::Real::powi(self.radius, 2);
+        let a = Matrix::norm_squared(&ray.direction);
+        let b = Matrix::dot(&oc, &ray.direction);
+        let c = Matrix::norm_squared(&oc) - na::Real::powi(self.radius, 2);
         let discriminant = na::Real::powi(b, 2) - (a * c);
         let t = (-b - na::Real::sqrt(discriminant)) / a;
 
