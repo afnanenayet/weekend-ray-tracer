@@ -31,8 +31,8 @@ impl<N: Real> Camera<N> for Pinhole<N> {
 
 impl Default for Pinhole<f32> {
     /// Return the standard camera parameters as defined in page 20 of "Ray Tracing in One Weekend"
-    fn default() -> Pinhole<f32> {
-        Pinhole {
+    fn default() -> Self {
+        Self {
             origin: Vector3f::new(0.0, 0.0, 0.0),
             horizontal: Vector3f::new(4.0, 0.0, 0.0),
             vertical: Vector3f::new(0.0, 2.0, 0.0),

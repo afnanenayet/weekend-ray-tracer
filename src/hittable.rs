@@ -52,7 +52,7 @@ impl<N: Real + Sync> HitList<N> {
         let mut mat = &self.list[0].1;
 
         // Iterate through
-        for pair in self.list.iter() {
+        for pair in &self.list {
             let record = pair.0.hit(ray);
 
             if record.is_some()

@@ -10,7 +10,7 @@ pub mod mirror;
 /// scattering results.
 ///
 /// `in_ray` is the incoming ray from the camera to the surface that was struck.
-/// `hit_record` is the HitRecord that is associated with that hit.
+/// `hit_record` is the `HitRecord` that is associated with that hit.
 pub trait BSDF<N: Real + Sync> {
     fn scatter(&self, in_ray: &Ray<N>, hit_record: &HitRecord<N>) -> BSDFRecord<N>;
 }

@@ -1,6 +1,6 @@
 use crate::na::Matrix;
 use crate::na::Real;
-use crate::na::{self, Vector3};
+use crate::na::Vector3;
 use num::FromPrimitive;
 use rand::{thread_rng, Rng};
 

@@ -87,29 +87,26 @@ fn color(r: &Ray3f, primitives: &HitList<f32>, depth: u32, depth_limit: u32) -> 
     let hit_record: Option<(HitRecord<f32>, &BSDFRef<f32>)> =
         primitives.any_hit(r, Some(0.001), None);
 
-    match hit_record {
-        Some(pair) => {
-            let hr = pair.0;
-            let bsdf = pair.1;
+    if let Some(pair) = hit_record {
+        let hr = pair.0;
+        let bsdf = pair.1;
 
-            // if depth is less than depth limit, then global illumination
-            if depth < depth_limit {
-                let bsdf_record = bsdf.scatter(r, &hr);
-                let attenuation: Vector3f = bsdf_record.attenuated;
-                let scattered_ray: Ray3f = bsdf_record.out_scattered;
-                color(&scattered_ray, primitives, depth + 1, depth_limit)
-                    .component_mul(&attenuation)
-            } else {
-                Vector3f::new(0.0, 0.0, 0.0)
-            }
+        // if depth is less than depth limit, then global illumination
+        if depth < depth_limit {
+            let bsdf_record = bsdf.scatter(r, &hr);
+            let attenuation: Vector3f = bsdf_record.attenuated;
+            let scattered_ray: Ray3f = bsdf_record.out_scattered;
+            return color(&scattered_ray, primitives, depth + 1, depth_limit)
+                .component_mul(&attenuation);
+        } else {
+            return Vector3f::new(0.0, 0.0, 0.0);
         }
-        None => {
-            let unit_dir = r.direction.normalize();
-            let t = 0.5 * (unit_dir.y + 1.0);
+    } else {
+        let unit_dir = r.direction.normalize();
+        let t = 0.5 * (unit_dir.y + 1.0);
 
-            // linearly interpolate a color based on the angle of the ray
-            (1.0 - t) * Vector3::new(1.0, 1.0, 1.0) + t * Vector3::new(0.5, 0.7, 1.0)
-        }
+        // linearly interpolate a color based on the angle of the ray
+        return (1.0 - t) * Vector3::new(1.0, 1.0, 1.0) + t * Vector3::new(0.5, 0.7, 1.0);
     }
 }
 
