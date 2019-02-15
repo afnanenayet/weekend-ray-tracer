@@ -8,7 +8,7 @@ extern crate trtlib;
 use crate::na::Vector3;
 use clap::{load_yaml, value_t, App};
 use indicatif::{ProgressBar, ProgressStyle};
-use rand::{thread_rng, Rng};
+use rand::prelude::*;
 use rayon::iter::IntoParallelIterator;
 use rayon::prelude::*;
 use std::default::Default;
@@ -114,7 +114,7 @@ fn color(r: &Ray3f, primitives: &HitList<f32>, depth: u32, depth_limit: u32) -> 
 fn create_progress_bar(size: u64) -> ProgressBar {
     let style = ProgressStyle::default_bar()
         .progress_chars("=> ")
-        .template("{elapsed_precise} / {eta_precise} (ETA) [{wide_bar}] {percent}%");
+        .template("{elapsed_precise} < {eta_precise} (ETA) [{bar}] {percent}%");
     let pb = ProgressBar::new(size);
     pb.set_style(style);
     pb
@@ -148,7 +148,7 @@ fn render_scene(nx: usize, ny: usize, ns: usize, out: &str) -> std::io::Result<(
             pb.inc(1);
             let j = ny - (idx / nx);
             let i = idx % nx;
-            let mut rng = thread_rng();
+            let mut rng = rand::thread_rng();
 
             // accumulate colors via AA
             let mut col = Color3f::new(0.0, 0.0, 0.0);
