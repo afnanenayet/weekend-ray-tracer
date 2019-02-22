@@ -17,7 +17,7 @@ impl<N: Real> Ray<N> {
 
     /// Create a new Ray with a specified origin and direction
     pub fn new(origin: &Vector3<N>, direction: &Vector3<N>) -> Self {
-        Ray {
+        Self {
             origin: *origin,
             direction: *direction,
         }

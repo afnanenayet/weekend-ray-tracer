@@ -1,9 +1,4 @@
-extern crate image;
-extern crate indicatif;
 extern crate nalgebra as na;
-extern crate rand;
-extern crate rayon;
-extern crate trtlib;
 
 use crate::na::Vector3;
 use clap::{load_yaml, value_t, App};
@@ -131,7 +126,7 @@ fn create_progress_bar(size: u64) -> ProgressBar {
 fn render_scene(nx: usize, ny: usize, ns: usize, out: &str) -> std::io::Result<()> {
     // initialize scene objects
     let primitives = scene();
-    let camera: Pinhole<f32> = Default::default();
+    let camera = Pinhole::<f32>::default();
 
     // recursion limit
     let rec_lim = 50;

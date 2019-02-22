@@ -1,6 +1,4 @@
 extern crate nalgebra as na;
-extern crate num;
-extern crate rand;
 
 pub mod camera;
 pub mod common;

@@ -26,7 +26,7 @@ clap = {version = "2.32.0", features = ["yaml", "suggestions", "color"]}
 [dependencies.nalgebra-lapack]
 version = "0.9.0"
 default-features = false
-# features = ["accelerate"]
+ features = ["netlib"]
 
 [profile.release]
 lto = true
