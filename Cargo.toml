@@ -15,8 +15,8 @@ path = "src/main.rs"
 doc = false
 
 [dependencies]
-image = "0.20.1"
-nalgebra = "0.17.0"
+image = "0.21"
+nalgebra = "0.17.2"
 indicatif = "0.11.0"
 rand = "0.6.5"
 num = "0.2.0"
