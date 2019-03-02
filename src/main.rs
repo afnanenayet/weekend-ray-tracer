@@ -13,7 +13,7 @@ use std::time::Instant;
 use std::vec::Vec;
 use trtlib::camera::pinhole::Pinhole;
 use trtlib::camera::Camera;
-use trtlib::hittable::{BSDFRef, HitList, HitRecord, ObjVec};
+use trtlib::hittable::{HitList, ObjVec};
 use trtlib::material::diffuse::Diffuse;
 use trtlib::material::mirror::Mirror;
 use trtlib::primitives::sphere::Sphere;
@@ -74,13 +74,11 @@ fn scene() -> HitList<f32> {
 /// Calculate the background color that corresponds to an outgoing camera ray. Creates a blend of
 /// blue and white.
 ///
-/// `r` is the outgoing ray from the camera to the world
-/// `objects` is a list of tuple(geometric primitives, materials) that are in the scene
-/// `depth` is the recursion depth for global illumination
-/// `depth_limit` is the recursion depth limit for global illumination
+/// `r` is the outgoing ray from the camera to the world `objects` is a list of tuple(geometric
+/// primitives, materials) that are in the scene `depth` is the recursion depth for global
+/// illumination `depth_limit` is the recursion depth limit for global illumination
 fn color(r: &Ray3f, primitives: &HitList<f32>, depth: u32, depth_limit: u32) -> Color3f {
-    let hit_record: Option<(HitRecord<f32>, &BSDFRef<f32>)> =
-        primitives.any_hit(r, Some(0.001), None);
+    let hit_record = primitives.any_hit(r, Some(0.001), None);
 
     if let Some(pair) = hit_record {
         let hr = pair.0;
@@ -115,14 +113,11 @@ fn create_progress_bar(size: u64) -> ProgressBar {
     pb
 }
 
-/// Render the scene, given a configuration. This method takes care of the bulk of the core code
-/// to generate the scene as well as parallelize the render.
+/// Render the scene, given a configuration. This method takes care of the bulk of the core code to
+/// generate the scene as well as parallelize the render.
 ///
-/// Params:
-///     - nx: the width of the image
-///     - ny: the height of hte image
-///     - ns: the antialiasing factor for each pixel
-///     - out: the relative output filename for the rendered picture
+/// Params: - nx: the width of the image - ny: the height of hte image - ns: the antialiasing
+/// factor for each pixel - out: the relative output filename for the rendered picture
 fn render_scene(nx: usize, ny: usize, ns: usize, out: &str) -> std::io::Result<()> {
     // initialize scene objects
     let primitives = scene();
@@ -159,8 +154,8 @@ fn render_scene(nx: usize, ny: usize, ns: usize, out: &str) -> std::io::Result<(
             col /= ns as f32;
             col.apply(|e| e.sqrt());
 
-            // writing colors as u16 instead of u8 because this allows us to sanity check
-            // whether colors would wrap/be invalid
+            // writing colors as u16 instead of u8 because this allows us to sanity check whether
+            // colors would wrap/be invalid
             let ir = (col.x * 255.99) as u16;
             let ig = (col.y * 255.99) as u16;
             let ib = (col.z * 255.99) as u16;
@@ -168,7 +163,8 @@ fn render_scene(nx: usize, ny: usize, ns: usize, out: &str) -> std::io::Result<(
             // write to file with some sanity checking
             if ir > 256 || ig > 256 || ib > 256 {
                 println!(
-                    "ERROR: generated invalid color value ({}, {}, {})",
+                    "ERROR: generated invalid color value
+            ({}, {}, {})",
                     ir, ig, ib
                 );
                 return [1 as u8; 3];
@@ -181,8 +177,8 @@ fn render_scene(nx: usize, ny: usize, ns: usize, out: &str) -> std::io::Result<(
     println!("Writing buffer to file");
     let start_time = Instant::now();
 
-    // flatten the image buffer so it can be saved using the image crate
-    // Note that this is a performance issue as it doubles the memory necessary
+    // flatten the image buffer so it can be saved using the image crate Note that this is a
+    // performance issue as it doubles the memory necessary
     let image_buffer: Vec<u8> = buffer.iter().flat_map(|n| n.iter().cloned()).collect();
     create_render_dir("renders")?;
     image::save_buffer(out, &image_buffer, nx as u32, ny as u32, image::RGB(8))?;
@@ -196,8 +192,7 @@ fn main() -> std::io::Result<()> {
     let yaml = load_yaml!("cli.yaml");
     let matches = App::from_yaml(yaml).get_matches();
 
-    // Check for args or get default values
-    // We'll use relatively cheap default values
+    // Check for args or get default values We'll use relatively cheap default values
     let width = value_t!(matches.value_of("width"), usize).unwrap_or(200);
     let height = value_t!(matches.value_of("height"), usize).unwrap_or(100);
     let aa = value_t!(matches.value_of("aa"), usize).unwrap_or(50);
