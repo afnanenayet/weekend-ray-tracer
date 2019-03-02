@@ -1,6 +1,6 @@
 use clap::Shell;
-use clap::{App, load_yaml};
-use std::env;
+use clap::{load_yaml, App};
+use std::{env, vec};
 
 fn main() {
     let out_dir = match env::var_os("OUT_DIR") {
