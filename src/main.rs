@@ -47,7 +47,7 @@ fn scene() -> HitList<f32> {
             center: Vector3f::new(0.0, -100.5, -1.0),
         }),
         Box::new(Diffuse {
-            albedo: Vector3::new(0.8, 0.8, 0.0),
+            albedo: Vector3f::new(0.8, 0.8, 0.0),
         }),
     ));
     v.push((
@@ -56,7 +56,7 @@ fn scene() -> HitList<f32> {
             center: Vector3f::new(1.0, 0.0, -1.0),
         }),
         Box::new(Mirror {
-            albedo: Vector3::new(0.8, 0.6, 0.2),
+            albedo: Vector3f::new(0.8, 0.6, 0.2),
         }),
     ));
     v.push((
@@ -65,7 +65,7 @@ fn scene() -> HitList<f32> {
             center: Vector3f::new(-1.0, 0.0, -1.0),
         }),
         Box::new(Mirror {
-            albedo: Vector3::new(0.8, 0.8, 0.8),
+            albedo: Vector3f::new(0.8, 0.8, 0.8),
         }),
     ));
     HitList { list: v }
