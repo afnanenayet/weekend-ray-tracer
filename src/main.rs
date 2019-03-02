@@ -13,10 +13,8 @@ use std::time::Instant;
 use std::vec::Vec;
 use trtlib::camera::pinhole::Pinhole;
 use trtlib::camera::Camera;
-use trtlib::hittable::{HitList, ObjVec};
-use trtlib::material::diffuse::Diffuse;
-use trtlib::material::mirror::Mirror;
-use trtlib::primitives::sphere::Sphere;
+use trtlib::hittable::HitList;
+use trtlib::scene::default_scene;
 use trtlib::typedefs::*;
 
 /// Create the render/output directory if it doesn't already exist. If it does, do nothing.
@@ -25,50 +23,6 @@ fn create_render_dir(dir: &str) -> std::io::Result<()> {
         fs::create_dir(dir)?
     }
     Ok(())
-}
-
-/// Constructs the objects in the scene and returns a vector populated by those objects.
-fn scene() -> HitList<f32> {
-    let mut v: ObjVec<f32> = Vec::new();
-
-    // specify objects here
-    v.push((
-        Box::new(Sphere {
-            radius: 0.5,
-            center: Vector3f::new(0.0, 0.0, -1.0),
-        }),
-        Box::new(Diffuse {
-            albedo: Vector3f::new(0.8, 0.3, 0.3),
-        }),
-    ));
-    v.push((
-        Box::new(Sphere {
-            radius: 100.0,
-            center: Vector3f::new(0.0, -100.5, -1.0),
-        }),
-        Box::new(Diffuse {
-            albedo: Vector3f::new(0.8, 0.8, 0.0),
-        }),
-    ));
-    v.push((
-        Box::new(Sphere {
-            radius: 0.5,
-            center: Vector3f::new(1.0, 0.0, -1.0),
-        }),
-        Box::new(Mirror {
-            albedo: Vector3f::new(0.8, 0.6, 0.2),
-        }),
-    ));
-    v.push((
-        Box::new(Sphere {
-            radius: 0.5,
-            center: Vector3f::new(-1.0, 0.0, -1.0),
-        }),
-        Box::new(Mirror {
-            albedo: Vector3f::new(0.8, 0.8, 0.8),
-        }),
-    ));
-    HitList { list: v }
 }
 
 /// Calculate the background color that corresponds to an outgoing camera ray. Creates a blend of
@@ -118,9 +72,14 @@ fn create_progress_bar(size: u64) -> ProgressBar {
 ///
 /// Params: - nx: the width of the image - ny: the height of hte image - ns: the antialiasing
 /// factor for each pixel - out: the relative output filename for the rendered picture
-fn render_scene(nx: usize, ny: usize, ns: usize, out: &str) -> std::io::Result<()> {
+fn render_scene(
+    primitives: &HitList<f32>,
+    nx: usize,
+    ny: usize,
+    ns: usize,
+    out: &str,
+) -> std::io::Result<()> {
     // initialize scene objects
-    let primitives = scene();
     let camera = Pinhole::<f32>::default();
 
     // recursion limit
@@ -205,5 +164,7 @@ fn main() -> std::io::Result<()> {
     let aa = value_t!(matches.value_of("aa"), usize).unwrap_or(50);
     let output_fname: &str = matches.value_of("out").unwrap_or("renders/render.png");
 
-    render_scene(width, height, aa, output_fname)
+    let scene = default_scene();
+
+    render_scene(&scene, width, height, aa, output_fname)
 }
