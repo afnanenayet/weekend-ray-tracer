@@ -107,7 +107,7 @@ fn color(r: &Ray3f, primitives: &HitList<f32>, depth: u32, depth_limit: u32) -> 
 fn create_progress_bar(size: u64) -> ProgressBar {
     let style = ProgressStyle::default_bar()
         .progress_chars("=> ")
-        .template("{elapsed_precise} < {eta_precise} (ETA) [{bar}] {percent}%");
+        .template("[{bar}] {elapsed_precise} < {eta_precise} {percent}%");
     let pb = ProgressBar::new(size);
     pb.set_style(style);
     pb
@@ -167,10 +167,10 @@ fn render_scene(nx: usize, ny: usize, ns: usize, out: &str) -> std::io::Result<(
             let ib = (col.z * 255.99) as u16;
 
             // write to file with some sanity checking
+            // We use white as the default value if there is some incorrect value
             if ir > 256 || ig > 256 || ib > 256 {
                 println!(
-                    "ERROR: generated invalid color value
-            ({}, {}, {})",
+                    "ERROR: generated invalid color value ({}, {}, {})",
                     ir, ig, ib
                 );
                 return [1 as u8; 3];
@@ -198,7 +198,8 @@ fn main() -> std::io::Result<()> {
     let yaml = load_yaml!("cli.yaml");
     let matches = App::from_yaml(yaml).get_matches();
 
-    // Check for args or get default values We'll use relatively cheap default values
+    // Check for args or get default values
+    // The default values should be relatively cheap
     let width = value_t!(matches.value_of("width"), usize).unwrap_or(200);
     let height = value_t!(matches.value_of("height"), usize).unwrap_or(100);
     let aa = value_t!(matches.value_of("aa"), usize).unwrap_or(50);
