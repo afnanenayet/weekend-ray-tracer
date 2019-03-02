@@ -154,6 +154,12 @@ fn render_scene(nx: usize, ny: usize, ns: usize, out: &str) -> std::io::Result<(
             col /= ns as f32;
             col.apply(|e| e.sqrt());
 
+            // these assertions ensure that the values are above 0 and we aren't losing any
+            // information (the values should never get below 0 anyways)
+            assert!(col.x >= 0.0 && col.x <= 1.0);
+            assert!(col.y >= 0.0 && col.y <= 1.0);
+            assert!(col.z >= 0.0 && col.z <= 1.0);
+
             // writing colors as u16 instead of u8 because this allows us to sanity check whether
             // colors would wrap/be invalid
             let ir = (col.x * 255.99) as u16;
@@ -198,6 +204,5 @@ fn main() -> std::io::Result<()> {
     let aa = value_t!(matches.value_of("aa"), usize).unwrap_or(50);
     let output_fname: &str = matches.value_of("out").unwrap_or("renders/render.png");
 
-    render_scene(width, height, aa, output_fname)?;
-    Ok(())
+    render_scene(width, height, aa, output_fname)
 }

@@ -7,7 +7,7 @@ use crate::ray::Ray;
 pub mod pinhole;
 
 /// The `Camera` trait should be implemented for any specific camera implementation.
-pub trait Camera<N: Real> {
+pub trait Camera<N: Real + Sync> {
     /// Given uv coordinates, return an outgoing ray originating from the viewer's eye
     fn get_ray(&self, u: N, v: N) -> Ray<N>;
 }
