@@ -3,14 +3,14 @@
 //! This module contains methods that construct a scene, whether it's the
 //! default image, randomly generated circle, or deserialized from a file
 
-use crate::hittable::{HitList, ObjVec};
+use crate::hittable::ObjVec;
 use crate::material::diffuse::Diffuse;
 use crate::material::mirror::Mirror;
 use crate::primitives::sphere::Sphere;
 use crate::typedefs::*;
 
 /// Constructs the default scene found on the cover of the ray tracing in one weekend book
-pub fn default_scene() -> HitList<f32> {
+pub fn default_scene() -> ObjVec<f32> {
     let mut v: ObjVec<f32> = Vec::new();
 
     // specify objects here
@@ -50,5 +50,10 @@ pub fn default_scene() -> HitList<f32> {
             albedo: Vector3f::new(0.8, 0.8, 0.8),
         }),
     ));
-    HitList { list: v }
+    v
+}
+
+pub fn random_scene() -> ObjVec<f32> {
+    let mut v: ObjVec<f32> = Vec::new();
+    v
 }
