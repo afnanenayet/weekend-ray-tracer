@@ -1,5 +1,4 @@
-use crate::na::Real;
-use crate::na::{Matrix, Vector3};
+use crate::na::{Matrix, Real, Vector3};
 use num::FromPrimitive;
 use rand::{thread_rng, Rng};
 

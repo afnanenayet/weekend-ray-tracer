@@ -16,7 +16,7 @@ pub struct HitRecord<N: Real + Sync> {
 /// rendered on-screen. The function returns a `HitRecord` struct, which contains a relevant
 /// information about the hit.
 pub trait Hittable {
-    type NumType: Real;
+    type NumType: Real + Sync;
 
     /// Whether the object was hit. If so, it will be indicated in the hit record along with other
     /// relevant info. If there is a hit, then there will be a hit record. If not, a `None`
@@ -33,42 +33,35 @@ pub type BSDFRef<N> = Box<dyn BSDF<N> + Sync>;
 /// A vector of geometry, BSDF ref tuples
 pub type ObjVec<N> = Vec<(HittableRef<N>, BSDFRef<N>)>;
 
-/// A wrapper for a vector of Hittable types. It provides a convenience function to
-/// detect whether any geometry has been hit, and also makes it easy to add primitives to the
-/// list.
-pub struct HitList<N: Sync> {
-    pub list: ObjVec<N>,
-}
+/// Return a tuple with a (`HitRecord` struct, `BSDF`) struct, if any structure in the hit
+/// list is hit by the ray, within the bounds. If nothing is hit, `None` will be returned.
+pub fn any_hit<'a, N: Real + Sync>(
+    list: &'a ObjVec<N>,
+    ray: &Ray<N>,
+    t_min: Option<N>,
+    t_max: Option<N>,
+) -> Option<(HitRecord<N>, &'a BSDF<N>)> {
+    let mut closest_hit: Option<HitRecord<N>> = None;
+    let mut mat = &list[0].1;
 
-impl<N: Real + Sync> HitList<N> {
-    /// Return a tuple with a (`HitRecord` struct, `BSDF`) struct, if any structure in the hit
-    /// list is hit by the ray, within the bounds. If nothing is hit, `None` will be returned.
-    pub fn any_hit(
-        &self,
-        ray: &Ray<N>,
-        t_min: Option<N>,
-        t_max: Option<N>,
-    ) -> Option<(HitRecord<N>, &BSDFRef<N>)> {
-        let mut closest_hit: Option<HitRecord<N>> = None;
-        let mut mat = &self.list[0].1;
-
-        // Iterate through
-        for pair in self.list.iter() {
-            let record = pair.0.hit(ray);
-
-            if record.is_some()
-                && (closest_hit.is_none() || record.unwrap().t < closest_hit.unwrap().t)
-                && (t_min.is_none() || record.unwrap().t >= t_min.unwrap())
-                && (t_max.is_none() || record.unwrap().t <= t_max.unwrap())
-            {
-                closest_hit = record;
-                mat = &pair.1;
-            }
+    // Iterate through
+    for pair in list {
+        let hit_record = pair.0.hit(ray);
+        if hit_record.is_none() {
+            break;
         }
+        let record = hit_record.unwrap();
 
-        if closest_hit.is_some() {
-            return Some((closest_hit.unwrap(), &mat));
+        if (closest_hit.is_none() || record.t < closest_hit.unwrap().t)
+            && (t_min.is_none() || record.t >= t_min.unwrap())
+            && (t_max.is_none() || record.t <= t_max.unwrap())
+        {
+            closest_hit = hit_record;
+            mat = &pair.1;
         }
-        None
     }
+    if closest_hit.is_some() {
+        return Some((closest_hit.unwrap(), mat.as_ref()));
+    }
+    None
 }

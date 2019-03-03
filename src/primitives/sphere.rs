@@ -1,5 +1,5 @@
 use crate::hittable::{HitRecord, Hittable};
-use crate::na::{self, Matrix, Real, Vector3};
+use crate::na::{Matrix, Real, Vector3};
 use crate::ray::Ray;
 use num::FromPrimitive;
 use serde_derive::{Deserialize, Serialize};
