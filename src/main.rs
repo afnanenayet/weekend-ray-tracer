@@ -14,7 +14,7 @@ use std::vec::Vec;
 use trtlib::camera::pinhole::Pinhole;
 use trtlib::camera::Camera;
 use trtlib::hittable::{any_hit, ObjVec};
-use trtlib::scene::default_scene;
+use trtlib::scene;
 use trtlib::typedefs::*;
 
 /// Create the render/output directory if it doesn't already exist. If it does, do nothing.
@@ -166,6 +166,6 @@ fn main() -> std::io::Result<()> {
     let height = value_t!(matches.value_of("height"), usize).unwrap_or(100);
     let aa = value_t!(matches.value_of("aa"), usize).unwrap_or(50);
     let output_fname: &str = matches.value_of("out").unwrap_or("renders/render.png");
-    let scene = default_scene();
+    let scene = scene::random_scene();
     render_scene(&scene, width, height, aa, output_fname)
 }
