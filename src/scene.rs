@@ -7,14 +7,19 @@ use crate::hittable::ObjVec;
 use crate::material::diffuse::Diffuse;
 use crate::material::mirror::Mirror;
 use crate::primitives::sphere::Sphere;
+use crate::material::BSDF;
+use crate::hittable::Hittable;
 use crate::typedefs::*;
 use rand::prelude::*;
 use rand::rngs::ThreadRng;
 use serde_yaml;
 
+type SerializePair<N> = (Box<Hittable<NumType = N>>, Box<BSDF<N>>);
+
 /// Constructs the default scene found on the cover of the ray tracing in one weekend book
 pub fn default_scene() -> ObjVec<f32> {
     let mut v: ObjVec<f32> = Vec::new();
+    let mut s: Vec<SerializePair<f32>> = Vec::new();
 
     // specify objects here
     v.push((
@@ -53,6 +58,18 @@ pub fn default_scene() -> ObjVec<f32> {
             albedo: Vector3f::new(0.8, 0.8, 0.8),
         }),
     ));
+    s.push((
+        Box::new(Sphere {
+            radius: 0.5,
+            center: Vector3f::new(-1.0, 0.0, -1.0),
+        }),
+        Box::new(Mirror {
+            albedo: Vector3f::new(0.8, 0.8, 0.8),
+        }),
+    ));
+
+    // print the serialized scene for future use
+    let yaml = serde_yaml::to_string(&s).unwrap();
     v
 }
 
