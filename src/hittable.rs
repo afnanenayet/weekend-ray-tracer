@@ -31,19 +31,22 @@ type HittableRef<N> = Box<dyn Hittable<NumType = N> + Sync>;
 /// An owned reference to a BSDF trait object that is also `Sync`
 pub type BSDFRef<N> = Box<dyn BSDF<N> + Sync>;
 
+/// A hittable <-> BSDF pair
+pub type HitPair<N> = (HittableRef<N>, BSDFRef<N>);
+
 /// A vector of geometry, BSDF ref tuples
 pub type ObjVec<N> = Vec<(HittableRef<N>, BSDFRef<N>)>;
 
 /// Return a tuple with a (`HitRecord` struct, `BSDF`) struct, if any structure in the hit
 /// list is hit by the ray, within the bounds. If nothing is hit, `None` will be returned.
 pub fn any_hit<'a, N>(
-    list: &'a ObjVec<N>,
+    list: &'a [HitPair<N>],
     ray: &Ray<N>,
     t_min: Option<N>,
     t_max: Option<N>,
 ) -> Option<(HitRecord<N>, &'a BSDF<N>)>
 where
-    N: Real + Sync + serde::Serialize + serde::Deserialize<'a>,
+    N: Real + Sync,
 {
     let mut closest_hit: Option<HitRecord<N>> = None;
     let mut mat = &list[0].1;

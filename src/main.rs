@@ -13,7 +13,7 @@ use std::time::Instant;
 use std::vec::Vec;
 use trtlib::camera::pinhole::Pinhole;
 use trtlib::camera::Camera;
-use trtlib::hittable::{any_hit, ObjVec};
+use trtlib::hittable::{any_hit, ObjVec, HitPair};
 use trtlib::scene;
 use trtlib::typedefs::*;
 
@@ -31,7 +31,7 @@ fn create_render_dir(dir: &str) -> std::io::Result<()> {
 /// `r` is the outgoing ray from the camera to the world `objects` is a list of tuple(geometric
 /// primitives, materials) that are in the scene `depth` is the recursion depth for global
 /// illumination `depth_limit` is the recursion depth limit for global illumination
-fn color(r: &Ray3f, primitives: &ObjVec<f32>, depth: u32, depth_limit: u32) -> Color3f {
+fn color(r: &Ray3f, primitives: &[HitPair<f32>], depth: u32, depth_limit: u32) -> Color3f {
     let hit_record = any_hit(&primitives, r, Some(0.001), None);
 
     if let Some(pair) = hit_record {
@@ -76,7 +76,7 @@ fn create_progress_bar(size: u64) -> ProgressBar {
 /// - ns: the antialiasing factor for each pixel
 /// - out: the relative output filename for the rendered picture
 fn render_scene(
-    primitives: &ObjVec<f32>,
+    primitives: &[HitPair<f32>],
     nx: usize,
     ny: usize,
     ns: usize,
