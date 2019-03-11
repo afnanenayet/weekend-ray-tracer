@@ -14,7 +14,10 @@ pub struct Sphere<N: Real> {
 // This could be more generic, but even if it was, it would be generic over float primitives,
 // which would require me to implement traits over primitive types, which is not recommended
 // by Rust best practices.
-impl<N: Real + FromPrimitive> Hittable for Sphere<N> {
+impl<N> Hittable for Sphere<N>
+where
+    N: Real + FromPrimitive + serde::Serialize,
+{
     type NumType = N;
 
     fn hit(&self, ray: &Ray<Self::NumType>) -> Option<HitRecord<Self::NumType>> {

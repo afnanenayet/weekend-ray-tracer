@@ -14,7 +14,10 @@ pub struct Mirror<N: Real + Copy + Debug + PartialEq> {
     pub albedo: Vector3<N>,
 }
 
-impl<N: FromPrimitive + Real> BSDF<N> for Mirror<N> {
+impl<N> BSDF<N> for Mirror<N>
+where
+    N: FromPrimitive + Real + serde::Serialize,
+{
     /// Implements the scatter function for a mirror surface. This mirror implementation takes
     /// the albedo into account and attenuates the reflection based off the albedo. The mirror
     /// reflects the incoming ray about the normal of the incoming ray.
@@ -24,7 +27,6 @@ impl<N: FromPrimitive + Real> BSDF<N> for Mirror<N> {
             direction: reflection,
             origin: hit_record.p,
         };
-
         let mut bsdf_record: BSDFRecord<N> = BSDFRecord {
             out_scattered: scatter_out,
             attenuated: self.albedo,

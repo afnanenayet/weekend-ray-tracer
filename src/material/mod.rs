@@ -1,7 +1,7 @@
 use crate::hittable::HitRecord;
 use crate::na::{Real, Vector3};
 use crate::ray::Ray;
-use serde;
+use erased_serde::Serialize;
 
 pub mod diffuse;
 pub mod mirror;
@@ -12,7 +12,10 @@ pub mod mirror;
 ///
 /// `in_ray` is the incoming ray from the camera to the surface that was struck.
 /// `hit_record` is the `HitRecord` that is associated with that hit.
-pub trait BSDF<'a, N: Real + Sync>: serde::Serialize + serde::Deserialize<'a> {
+pub trait BSDF<N>: Serialize
+where
+    N: Real + Sync + Serialize,
+{
     fn scatter(&self, in_ray: &Ray<N>, hit_record: &HitRecord<N>) -> BSDFRecord<N>;
 }
 

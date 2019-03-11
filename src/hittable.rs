@@ -1,7 +1,7 @@
 use crate::material::BSDF;
 use crate::na::{Real, Vector3};
 use crate::ray::Ray;
-use serde;
+use erased_serde;
 use serde_derive::{Deserialize, Serialize};
 
 /// A struct that is returned by a hit query that indicates whether some object has been hit by a
@@ -16,7 +16,7 @@ pub struct HitRecord<N: Real + Sync> {
 /// Any object/struct that implements `Hittable` is something that can be hit by a ray and
 /// rendered on-screen. The function returns a `HitRecord` struct, which contains a relevant
 /// information about the hit.
-pub trait Hittable<'a>: serde::Serialize + serde::Deserialize<'a> {
+pub trait Hittable: erased_serde::Serialize {
     type NumType: Real + Sync;
 
     /// Whether the object was hit. If so, it will be indicated in the hit record along with other
@@ -26,22 +26,25 @@ pub trait Hittable<'a>: serde::Serialize + serde::Deserialize<'a> {
 }
 
 /// A parallel reference to a hittable object
-type HittableRef<'a, N> = Box<dyn Hittable<'a, NumType = N> + Sync>;
+type HittableRef<N> = Box<dyn Hittable<NumType = N> + Sync>;
 
 /// An owned reference to a BSDF trait object that is also `Sync`
 pub type BSDFRef<N> = Box<dyn BSDF<N> + Sync>;
 
 /// A vector of geometry, BSDF ref tuples
-pub type ObjVec<'a, N> = Vec<(HittableRef<'a, N>, BSDFRef<N>)>;
+pub type ObjVec<N> = Vec<(HittableRef<N>, BSDFRef<N>)>;
 
 /// Return a tuple with a (`HitRecord` struct, `BSDF`) struct, if any structure in the hit
 /// list is hit by the ray, within the bounds. If nothing is hit, `None` will be returned.
-pub fn any_hit<'a, N: Real + Sync>(
+pub fn any_hit<'a, N>(
     list: &'a ObjVec<N>,
     ray: &Ray<N>,
     t_min: Option<N>,
     t_max: Option<N>,
-) -> Option<(HitRecord<N>, &'a BSDF<N>)> {
+) -> Option<(HitRecord<N>, &'a BSDF<N>)>
+where
+    N: Real + Sync + serde::Serialize + serde::Deserialize<'a>,
+{
     let mut closest_hit: Option<HitRecord<N>> = None;
     let mut mat = &list[0].1;
 
