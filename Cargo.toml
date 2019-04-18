@@ -1,6 +1,6 @@
 [package]
 name = "trt"
-version = "0.5.1"
+version = "0.5.2"
 authors = ["Afnan Enayet <afnan@afnan.io>"]
 edition = "2018"
 build = "build.rs"
@@ -16,17 +16,17 @@ path = "src/main.rs"
 doc = false
 
 [dependencies]
-image = "0.21"
-nalgebra = "0.17.2"
+image = "0.21.1"
+nalgebra = "0.18.0"
 indicatif = "0.11.0"
 rand = "0.6.5"
 num = "0.2.0"
 rayon = "1.0.3"
-clap = {version = "2.32.0", features = ["yaml", "suggestions", "color"]}
+clap = {version = "2.33.0", features = ["yaml", "suggestions", "color"]}
 yaml-rust = "0.4.2"
 
 [build-dependencies]
-clap = {version = "2.32.0", features = ["yaml", "suggestions", "color"]}
+clap = {version = "2.33.0", features = ["yaml", "suggestions", "color"]}
 
 [dependencies.nalgebra-lapack]
 version = "0.9.0"

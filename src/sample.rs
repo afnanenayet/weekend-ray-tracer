@@ -1,5 +1,5 @@
 use crate::na::Matrix;
-use crate::na::Real;
+use crate::na::RealField;
 use crate::na::Vector3;
 use num::FromPrimitive;
 use rand::{thread_rng, Rng};
@@ -9,7 +9,7 @@ use rand::{thread_rng, Rng};
 /// Returns a randomly sampled vector inside the unit sphere.
 ///
 /// Note that this uses rejection sampling, a simple, but inefficient sampling strategy.
-pub fn unit_sphere<N: Real + FromPrimitive>() -> Vector3<N> {
+pub fn unit_sphere<N: RealField + FromPrimitive>() -> Vector3<N> {
     let mut rng = thread_rng();
     let mut v = Vector3::new(
         N::from_f32(2.0).unwrap(),

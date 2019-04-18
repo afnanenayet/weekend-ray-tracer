@@ -1,11 +1,11 @@
 use crate::material::BSDF;
-use crate::na::{Real, Vector3};
+use crate::na::{RealField, Vector3};
 use crate::ray::Ray;
 
 /// A struct that is returned by a hit query that indicates whether some object has been hit by a
 /// ray, and relevant location information if it has.
 #[derive(Clone, Debug, PartialEq, Copy)]
-pub struct HitRecord<N: Real + Sync> {
+pub struct HitRecord<N: RealField + Sync> {
     pub t: N,
     pub p: Vector3<N>,
     pub normal: Vector3<N>,
@@ -15,7 +15,7 @@ pub struct HitRecord<N: Real + Sync> {
 /// rendered on-screen. The function returns a `HitRecord` struct, which contains a relevant
 /// information about the hit.
 pub trait Hittable {
-    type NumType: Real + Sync;
+    type NumType: RealField + Sync;
 
     /// Whether the object was hit. If so, it will be indicated in the hit record along with other
     /// relevant info. If there is a hit, then there will be a hit record. If not, a `None`
@@ -34,7 +34,7 @@ pub type ObjVec<N> = Vec<(HittableRef<N>, BSDFRef<N>)>;
 
 /// Return a tuple with a (`HitRecord` struct, `BSDF`) struct, if any structure in the hit
 /// list is hit by the ray, within the bounds. If nothing is hit, `None` will be returned.
-pub fn any_hit<'a, N: Real + Sync>(
+pub fn any_hit<'a, N: RealField + Sync>(
     list: &'a ObjVec<N>,
     ray: &Ray<N>,
     t_min: Option<N>,

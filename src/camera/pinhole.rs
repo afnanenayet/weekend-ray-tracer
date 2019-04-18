@@ -2,21 +2,21 @@
 //! to generically swap-in different types of cameras.
 
 use super::Camera;
-use crate::na::{Real, Vector3};
+use crate::na::{RealField, Vector3};
 use crate::ray::Ray;
 use crate::typedefs::Vector3f;
 use std::default::Default;
 
 /// stores data for camera abstraction
 #[derive(Clone, Debug, PartialEq, Copy)]
-pub struct Pinhole<N: Real> {
+pub struct Pinhole<N: RealField> {
     pub origin: Vector3<N>,
     pub horizontal: Vector3<N>,
     pub vertical: Vector3<N>,
     pub lower_left: Vector3<N>,
 }
 
-impl<N: Real> Camera<N> for Pinhole<N> {
+impl<N: RealField> Camera<N> for Pinhole<N> {
     /// Return an outgoing directional ray for a camera based on supplied uv coordinates
     fn get_ray(&self, u: N, v: N) -> Ray<N> {
         Ray {

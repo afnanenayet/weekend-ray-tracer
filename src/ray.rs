@@ -1,13 +1,13 @@
 /// The ray class contains an origin and a direction. Both of these are 3D vectors.
-use crate::na::{Real, Vector3};
+use crate::na::{RealField, Vector3};
 
 #[derive(Clone, Debug, PartialEq, Copy)]
-pub struct Ray<N: Real> {
+pub struct Ray<N: RealField> {
     pub origin: Vector3<N>,
     pub direction: Vector3<N>,
 }
 
-impl<N: Real> Ray<N> {
+impl<N: RealField> Ray<N> {
     /// Returns the coordinate value of a ray that has been extended fowards or
     /// backwards by a certain delta value. A ray takes the form `O + Dt` where
     /// t is the `delta` parameter in this function.

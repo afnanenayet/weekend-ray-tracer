@@ -1,6 +1,6 @@
 use super::{BSDFRecord, BSDF};
 use crate::hittable::HitRecord;
-use crate::na::{Real, Vector3};
+use crate::na::{RealField, Vector3};
 use crate::ray::Ray;
 use crate::sample::unit_sphere;
 use num::FromPrimitive;
@@ -8,12 +8,12 @@ use std::fmt::Debug;
 
 /// Holds the properties for a diffuse BSDF
 #[derive(Clone, Debug, PartialEq, Copy)]
-pub struct Diffuse<N: Real + Copy + Debug + PartialEq> {
+pub struct Diffuse<N: RealField + Copy + Debug + PartialEq> {
     /// The fraction of light that is absorbed by the material
     pub albedo: Vector3<N>,
 }
 
-impl<N: FromPrimitive + Real> BSDF<N> for Diffuse<N> {
+impl<N: FromPrimitive + RealField> BSDF<N> for Diffuse<N> {
     // note that the incoming angle doesn't matter for a lambertian surface, which is why we ignore
     // the incoming ray
     fn scatter(&self, _in_ray: &Ray<N>, hit_record: &HitRecord<N>) -> BSDFRecord<N> {
