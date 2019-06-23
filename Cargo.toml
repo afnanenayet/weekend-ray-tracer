@@ -24,6 +24,8 @@ num = "0.2.0"
 rayon = "1.1.0"
 clap = {version = "2.33.0", features = ["yaml", "suggestions", "color"]}
 yaml-rust = "0.4.2"
+log = "0.4.6"
+pretty_env_logger = "0.3.0"
 
 [build-dependencies]
 clap = {version = "2.33.0", features = ["yaml", "suggestions", "color"]}

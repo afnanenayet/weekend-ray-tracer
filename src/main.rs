@@ -3,6 +3,8 @@ extern crate nalgebra as na;
 use crate::na::Vector3;
 use clap::{load_yaml, value_t, App};
 use indicatif::{ProgressBar, ProgressStyle};
+use log::{error, info, warn};
+use pretty_env_logger;
 use rand::prelude::*;
 use rayon::iter::IntoParallelIterator;
 use rayon::prelude::*;
@@ -11,7 +13,7 @@ use std::vec::Vec;
 use trtlib::camera::pinhole::Pinhole;
 use trtlib::camera::Camera;
 use trtlib::hittable::{any_hit, ObjVec};
-use trtlib::scene::default_scene;
+use trtlib::scene;
 use trtlib::typedefs::*;
 
 /// Calculate the background color that corresponds to an outgoing camera ray. Creates a blend of
@@ -33,10 +35,20 @@ fn color(r: &Ray3f, primitives: &ObjVec<f>, depth: u, depth_limit: u) -> Color3f
             let bsdf_record = bsdf.scatter(r, &hr);
             let attenuation: Vector3f = bsdf_record.attenuated;
             let scattered_ray: Ray3f = bsdf_record.out_scattered;
-            return color(&scattered_ray, primitives, depth + 1, depth_limit)
+            // FIXME I think that the scattered rays are getting messed up somehow and hitting the
+            // depth limit. Maybe they're going inside the sphere? In any case, whenever an object
+            // is hit, this method is returning (0,0,0). The background works fine which leads me
+            // to believe that there is an issue with the outgoing ray
+            let tmp_color = color(&scattered_ray, primitives, depth + 1, depth_limit)
                 .component_mul(&attenuation);
+            info!(
+                "current color: {}, {}, {}",
+                tmp_color.x, tmp_color.y, tmp_color.z
+            );
+            return tmp_color;
         } else {
-            return Vector3f::new(0.0, 0.0, 0.0);
+            // TODO(afnan) change back to 0, 0, 0
+            return Color3f::new(0.0, 0.0, 0.0);
         }
     } else {
         let unit_dir = r.direction.normalize();
@@ -75,7 +87,8 @@ fn render_scene(
     let camera = Pinhole::default();
 
     // recursion limit
-    let rec_lim = 50;
+    let depth_limit = 50;
+    info!("Using a depth limit of {}", depth_limit);
 
     println!("Rendering scene...");
     let mut buffer: Vec<[u8; 3]> = Vec::with_capacity(nx * ny);
@@ -95,10 +108,10 @@ fn render_scene(
             let mut col = Color3f::new(0.0, 0.0, 0.0);
 
             for _ in 0..ns {
-                let u = (i as f32 + rng.gen::<f32>()) / (nx as f32);
-                let v = (j as f32 + rng.gen::<f32>()) / (ny as f32);
+                let u = (i as f + rng.gen::<f>()) / (nx as f);
+                let v = (j as f + rng.gen::<f>()) / (ny as f);
                 let r = camera.get_ray(u, v);
-                col += color(&r, &primitives, 0, rec_lim);
+                col += color(&r, &primitives, 0, depth_limit);
             }
 
             // average out the color values
@@ -118,13 +131,13 @@ fn render_scene(
             let ib = (col.z * 255.99) as u16;
 
             // write to file with some sanity checking
-            // We use white as the default value if there is some incorrect value
+            // We use black as the default value if there is some incorrect value
             if ir > 256 || ig > 256 || ib > 256 {
-                println!(
+                error!(
                     "ERROR: generated invalid color value ({}, {}, {})",
                     ir, ig, ib
                 );
-                return [1 as u8; 3];
+                return [0 as u8; 3];
             }
             [ir as u8, ig as u8, ib as u8]
         })
@@ -144,8 +157,10 @@ fn render_scene(
 }
 
 fn main() -> std::io::Result<()> {
+    pretty_env_logger::init();
     // load the args from a yaml file
     let yaml = load_yaml!("cli.yaml");
+    info!("Parsing command line parameters");
     let matches = App::from_yaml(yaml).get_matches();
 
     // Check for args or get default values
@@ -154,7 +169,8 @@ fn main() -> std::io::Result<()> {
     let height = value_t!(matches.value_of("height"), usize).unwrap_or(100);
     let aa = value_t!(matches.value_of("aa"), usize).unwrap_or(50);
     let output_fname: &str = matches.value_of("out").unwrap_or("render.png");
-    let scene = default_scene();
+    let scene = scene::test_scene();
 
+    info!("Preparing to render scene");
     render_scene(&scene, width, height, aa, output_fname)
 }

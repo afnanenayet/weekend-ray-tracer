@@ -1,6 +1,7 @@
 use crate::hittable::{HitRecord, Hittable};
 use crate::na::{Matrix, RealField, Vector3};
 use crate::ray::Ray;
+use log::info;
 use num::FromPrimitive;
 
 /// Contains the relevant information for a sphere primitive

@@ -79,3 +79,16 @@ pub fn default_scene() -> ObjVec<f> {
         )
     ])
 }
+
+/// A simple test scene for debugging
+pub fn test_scene() -> ObjVec<f> {
+    obj_vec!(f; [
+             (Sphere {
+                 center: Vector3f::new(0.0, 0.0, -1.0),
+                 radius: 0.5,
+             },
+             Diffuse {
+                 albedo: Vector3f::new(0.8, 0.3, 0.3)
+             })
+    ])
+}

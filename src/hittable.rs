@@ -1,6 +1,7 @@
 use crate::material::BSDF;
 use crate::na::{RealField, Vector3};
 use crate::ray::Ray;
+use log::{info, warn};
 
 /// A struct that is returned by a hit query that indicates whether some object has been hit by a
 /// ray, and relevant location information if it has.
@@ -54,6 +55,7 @@ pub fn any_hit<'a, N: RealField + Sync>(
     t_max: Option<N>,
 ) -> Option<(HitRecord<N>, &'a ObjRef<N>)> {
     if list.len() < 1 {
+        warn!("The list of objects was empty. Unless your scene is empty, this should not happen");
         return None;
     }
     let mut closest_hit: Option<HitRecord<N>> = None;
@@ -75,6 +77,7 @@ pub fn any_hit<'a, N: RealField + Sync>(
                 }
             } else {
                 closest_hit = Some(hit_record);
+                hit_obj = Some(obj_ref);
             }
         }
     }
