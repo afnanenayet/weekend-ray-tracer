@@ -6,8 +6,6 @@ use indicatif::{ProgressBar, ProgressStyle};
 use rand::prelude::*;
 use rayon::iter::IntoParallelIterator;
 use rayon::prelude::*;
-use std::fs;
-use std::path::Path;
 use std::time::Instant;
 use std::vec::Vec;
 use trtlib::camera::pinhole::Pinhole;
@@ -15,14 +13,6 @@ use trtlib::camera::Camera;
 use trtlib::hittable::{any_hit, ObjVec};
 use trtlib::scene::default_scene;
 use trtlib::typedefs::*;
-
-/// Create the render/output directory if it doesn't already exist. If it does, do nothing.
-fn create_render_dir(dir: &str) -> std::io::Result<()> {
-    if !Path::new(dir).exists() {
-        fs::create_dir(dir)?
-    }
-    Ok(())
-}
 
 /// Calculate the background color that corresponds to an outgoing camera ray. Creates a blend of
 /// blue and white.
@@ -147,7 +137,6 @@ fn render_scene(
     // flatten the image buffer so it can be saved using the image crate Note that this is a
     // performance issue as it doubles the memory necessary
     let image_buffer: Vec<u8> = buffer.iter().flat_map(|n| n.iter().cloned()).collect();
-    create_render_dir("renders")?;
     image::save_buffer(out, &image_buffer, nx as u32, ny as u32, image::RGB(8))?;
     let elapsed = start_time.elapsed().as_secs();
     println!("File took {} seconds to write to disk\n", elapsed);
