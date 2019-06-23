@@ -22,7 +22,7 @@ macro_rules! obj_vec {
         $t:ty; [ $( ( $prim:expr, $mat:expr ) ),* ]
     ) => {
         {
-            let mut vector: $t = Vec::new();
+            let mut vector: ObjVec<$t> = Vec::new();
             $(
                 vector.push(
                     (Box::new($prim), Box::new($mat))
@@ -34,8 +34,8 @@ macro_rules! obj_vec {
 }
 
 /// Constructs the default scene found on the cover of the ray tracing in one weekend book
-pub fn default_scene() -> ObjVec<f32> {
-    obj_vec!(ObjVec<f32>; [
+pub fn default_scene() -> ObjVec<f> {
+    obj_vec!(f; [
         (
             Sphere {
                 radius: 0.5,

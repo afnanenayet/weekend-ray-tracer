@@ -6,7 +6,6 @@ use indicatif::{ProgressBar, ProgressStyle};
 use rand::prelude::*;
 use rayon::iter::IntoParallelIterator;
 use rayon::prelude::*;
-use std::default::Default;
 use std::fs;
 use std::path::Path;
 use std::time::Instant;
@@ -31,7 +30,7 @@ fn create_render_dir(dir: &str) -> std::io::Result<()> {
 /// `r` is the outgoing ray from the camera to the world `objects` is a list of tuple(geometric
 /// primitives, materials) that are in the scene `depth` is the recursion depth for global
 /// illumination `depth_limit` is the recursion depth limit for global illumination
-fn color(r: &Ray3f, primitives: &ObjVec<f32>, depth: u32, depth_limit: u32) -> Color3f {
+fn color(r: &Ray3f, primitives: &ObjVec<f>, depth: u, depth_limit: u) -> Color3f {
     let hit_record = any_hit(&primitives, r, Some(0.001), None);
 
     if let Some(pair) = hit_record {
@@ -76,14 +75,13 @@ fn create_progress_bar(size: u64) -> ProgressBar {
 /// - ns: the antialiasing factor for each pixel
 /// - out: the relative output filename for the rendered picture
 fn render_scene(
-    primitives: &ObjVec<f32>,
+    primitives: &ObjVec<f>,
     nx: usize,
     ny: usize,
     ns: usize,
     out: &str,
 ) -> std::io::Result<()> {
-    // initialize scene objects
-    let camera = Pinhole::<f32>::default();
+    let camera = Pinhole::default();
 
     // recursion limit
     let rec_lim = 50;
@@ -165,8 +163,7 @@ fn main() -> std::io::Result<()> {
     let width = value_t!(matches.value_of("width"), usize).unwrap_or(200);
     let height = value_t!(matches.value_of("height"), usize).unwrap_or(100);
     let aa = value_t!(matches.value_of("aa"), usize).unwrap_or(50);
-    let output_fname: &str = matches.value_of("out").unwrap_or("renders/render.png");
-
+    let output_fname: &str = matches.value_of("out").unwrap_or("render.png");
     let scene = default_scene();
 
     render_scene(&scene, width, height, aa, output_fname)
