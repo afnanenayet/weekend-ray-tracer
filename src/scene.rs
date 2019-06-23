@@ -3,7 +3,7 @@
 //! This module contains methods that construct a scene, whether it's the
 //! default image, randomly generated circle, or deserialized from a file
 
-use crate::hittable::ObjVec;
+use crate::hittable::{ObjRef, ObjVec};
 use crate::material::diffuse::Diffuse;
 use crate::material::mirror::Mirror;
 use crate::primitives::sphere::Sphere;
@@ -25,7 +25,10 @@ macro_rules! obj_vec {
             let mut vector: ObjVec<$t> = Vec::new();
             $(
                 vector.push(
-                    (Box::new($prim), Box::new($mat))
+                    ObjRef{
+                        hittable: Box::new($prim),
+                        material: Box::new($mat),
+                    }
                 );
             )*
             vector

@@ -31,11 +31,12 @@ fn create_render_dir(dir: &str) -> std::io::Result<()> {
 /// primitives, materials) that are in the scene `depth` is the recursion depth for global
 /// illumination `depth_limit` is the recursion depth limit for global illumination
 fn color(r: &Ray3f, primitives: &ObjVec<f>, depth: u, depth_limit: u) -> Color3f {
-    let hit_record = any_hit(&primitives, r, Some(0.001), None);
+    let possible_hit_record = any_hit(&primitives, r, Some(0.001), None);
 
-    if let Some(pair) = hit_record {
-        let hr = pair.0;
-        let bsdf = pair.1;
+    if let Some(hit_record) = possible_hit_record {
+        let hr = hit_record.0;
+        let obj = hit_record.1;
+        let bsdf = &obj.material;
 
         // if depth is less than depth limit, then global illumination
         if depth < depth_limit {
