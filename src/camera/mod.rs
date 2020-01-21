@@ -1,10 +1,13 @@
-//! The camera module provides a generic camera trait that can be implemented
-//! to provide different camera types.
+//! The camera module defines a trait that implementations of cameras can use
+//! to generically swap-in different types of cameras. It also provides implementations of various
+//! cameras.
 
 use crate::na::RealField;
 use crate::ray::Ray;
 
 pub mod pinhole;
+
+pub use pinhole::Pinhole;
 
 /// The `Camera` trait should be implemented for any specific camera implementation.
 pub trait Camera<N: RealField + Sync> {

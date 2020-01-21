@@ -1,30 +1,33 @@
-//! The camera module defines a trait that implementations of cameras can use
-//! to generically swap-in different types of cameras.
-
 use super::Camera;
 use crate::na::{RealField, Vector3};
 use crate::ray::Ray;
 use crate::typedefs::Vector3f;
 use std::default::Default;
 
-/// stores data for camera abstraction
+/// A pinhole camera
+///
+/// The camera has a configurable field of view that can be set in two axes.
 #[derive(Clone, Debug, PartialEq, Copy)]
 pub struct Pinhole<N: RealField> {
+    /// The center
     pub origin: Vector3<N>,
+    /// The horizontal span of the camera's field of view
     pub horizontal: Vector3<N>,
+    /// The vertical span of the camera's field of view
     pub vertical: Vector3<N>,
+    /// The lower left corner of the camera's field of view
     pub lower_left: Vector3<N>,
 }
 
 impl<N: RealField> Camera<N> for Pinhole<N> {
     /// Return an outgoing directional ray for a camera based on supplied uv coordinates
     fn get_ray(&self, u: N, v: N) -> Ray<N> {
+        let direction =
+            self.lower_left + self.horizontal.map(|e| e * u) + self.vertical.map(|e| e * v)
+                - self.origin;
         Ray {
             origin: self.origin,
-            direction: self.lower_left
-                + self.horizontal.map(|e| e * u)
-                + self.vertical.map(|e| e * v)
-                - self.origin,
+            direction,
         }
     }
 }
